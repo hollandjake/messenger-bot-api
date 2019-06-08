@@ -1,0 +1,8 @@
+.idea/
+target/
+src/errors/
+
+*.iml
+
+**/*.properties
+!**/config.properties
