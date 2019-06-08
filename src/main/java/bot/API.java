@@ -8,7 +8,7 @@ import bot.utils.message.Message;
 import java.lang.reflect.MalformedParametersException;
 import java.time.Duration;
 
-public abstract class MBotAPI extends Thread {
+public abstract class API extends Thread {
 	private final boolean debugging;
 	protected Config config;
 	private WebController webController;
@@ -16,7 +16,7 @@ public abstract class MBotAPI extends Thread {
 	private long refreshRate;
 	private Duration messageTimeout;
 
-	public MBotAPI(Config config) {
+	public API(Config config) {
 		this.config = config;
 		this.debugging = Boolean.valueOf(config.getProperty("debug"));
 		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));

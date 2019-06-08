@@ -1,16 +1,16 @@
-import bot.MBotAPI;
+import bot.API;
 import bot.utils.Config;
 import bot.utils.message.Message;
 
-class MBotAPITest extends MBotAPI {
+class APITest extends API {
 
-	public MBotAPITest(Config config) {
+	public APITest(Config config) {
 		super(config);
 	}
 
 	public static void main(String[] args) {
 		String configFile = args.length > 0 ? args[0] : null;
-		new MBotAPITest(new Config(configFile));
+		new APITest(new Config(configFile));
 	}
 
 	@Override

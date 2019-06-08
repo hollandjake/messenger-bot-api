@@ -1,6 +1,6 @@
 package bot.utils;
 
-import bot.MBotAPI;
+import bot.API;
 import bot.utils.message.Message;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
@@ -18,14 +18,14 @@ import static bot.utils.CONSTANTS.LAST;
 import static bot.utils.XPATHS.*;
 
 public class WebController {
-	private final MBotAPI api;
+	private final API api;
 	private final WebDriver webDriver;
 	private final Actions keyboard;
 	private final WebDriverWait wait;
 	private final WebDriverWait messageWait;
 	private final Config config;
 
-	public WebController(Config config, MBotAPI api) {
+	public WebController(Config config, API api) {
 		this.api = api;
 		this.config = config;
 

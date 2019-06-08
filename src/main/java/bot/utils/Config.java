@@ -6,15 +6,24 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Config extends Properties {
-	private InputStream inputStream;
+
+	private static final String DEFAULT_FILE = "config.properties";
+
+	public Config() {
+		loadFile(DEFAULT_FILE);
+	}
 
 	public Config(String file) {
 		if (file != null) {
 			System.out.println("User provided custom configuration file : " + file);
 		} else {
-			file = "config.properties";
+			file = DEFAULT_FILE;
 		}
+		loadFile(file);
+	}
 
+	private void loadFile(String file) {
+		InputStream inputStream = null;
 		try {
 			defaults = new Properties();
 			defaults.setProperty("message_timeout", 1000 * 60 + "");
