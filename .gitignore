@@ -6,3 +6,5 @@ src/errors/
 
 **/*.properties
 !**/config.properties
+
+**/META-INF/

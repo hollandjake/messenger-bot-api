@@ -1,8 +1,11 @@
-package bot.utils.message;
+package com.hollandjake.messengerBotAPI.message;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import java.awt.datatransfer.StringSelection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -11,21 +14,17 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static bot.utils.CONSTANTS.MESSAGE_DATE_FORMATTER;
-import static bot.utils.XPATHS.MESSAGE_DATE;
+import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
+import static com.hollandjake.messengerBotAPI.util.CONSTANTS.MESSAGE_DATE_FORMATTER;
+import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_DATE;
 
-public class MessageDate {
+public class MessageDate extends MessageObject {
 
 	private static Pattern pattern = Pattern.compile("(\\d\\d):(\\d\\d)");
-
 	private final LocalDateTime date;
 
 	private MessageDate(LocalDateTime date) {
 		this.date = date;
-	}
-
-	public String prettyPrint() {
-		return date.format(MESSAGE_DATE_FORMATTER);
 	}
 
 	public static MessageDate now() {
@@ -54,5 +53,27 @@ public class MessageDate {
 		} else {
 			return null;
 		}
+	}
+
+	public static MessageDate fromResultSet(ResultSet resultSet) {
+		try {
+			return new MessageDate(resultSet.getTimestamp("date").toLocalDateTime());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public String prettyPrint() {
+		return date.format(MESSAGE_DATE_FORMATTER);
+	}
+
+	@Override
+	public void send(WebElement inputBox) {
+		CLIPBOT.paste(new StringSelection("[" + prettyPrint() + "]"), inputBox);
+	}
+
+	public LocalDateTime getDate() {
+		return date;
 	}
 }

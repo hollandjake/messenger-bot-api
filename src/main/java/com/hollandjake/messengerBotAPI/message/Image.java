@@ -1,4 +1,4 @@
-package bot.utils.message;
+package com.hollandjake.messengerBotAPI.message;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -11,28 +11,38 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static bot.utils.CONSTANTS.CLIPBOT;
-import static bot.utils.CONSTANTS.MAX_IMAGE_SIZE;
-import static bot.utils.XPATHS.MESSAGE_IMAGE;
+import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
+import static com.hollandjake.messengerBotAPI.util.CONSTANTS.MAX_IMAGE_SIZE;
+import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_IMAGE;
 
-public class Image extends MessageComponent implements Transferable {
+public class Image extends MessageComponent implements Transferable, Serializable {
 	private static final Pattern REGEX = Pattern.compile("url\\(\"(\\S+?)\"\\)");
-	private final int ID;
-	private final String url;
-	private final java.awt.Image image;
 
-	private Image(int ID, String url, java.awt.Image image) {
-		this.ID = ID;
-		this.url = url;
+	private final BufferedImage image;
+
+	private Image(Integer id, BufferedImage image) {
+		super(id);
 		this.image = image;
+	}
+
+	public InputStream toStream() {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			ImageIO.write(image, "png", out);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new ByteArrayInputStream(out.toByteArray());
 	}
 
 	private static BufferedImage imageFromUrl(String url) throws SSLHandshakeException {
@@ -48,12 +58,26 @@ public class Image extends MessageComponent implements Transferable {
 			URLConnection urlConnection = U.openConnection();
 			urlConnection.connect();
 
-			imageInputStream = ImageIO.createImageInputStream(urlConnection.getInputStream());
+			image = imageFromStream(urlConnection.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+			if (e instanceof SSLHandshakeException) {
+				throw (SSLHandshakeException) e;
+			}
+		}
+		return image;
+	}
+
+	private static BufferedImage imageFromStream(InputStream inputStream) {
+		ImageInputStream imageInputStream = null;
+		BufferedImage image = null;
+
+		try {
+			int size = inputStream.available();
+			imageInputStream = ImageIO.createImageInputStream(inputStream);
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
-				double size = urlConnection.getContentLength();
-
 				//Scale image to fit in size
 				double scaleFactor = Math.min(1, MAX_IMAGE_SIZE / size);
 				int scaledWidth = (int) (image.getWidth() * scaleFactor);
@@ -71,9 +95,6 @@ public class Image extends MessageComponent implements Transferable {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			if (e instanceof SSLHandshakeException) {
-				throw (SSLHandshakeException) e;
-			}
 		} finally {
 			try {
 				if (imageInputStream != null) {
@@ -87,11 +108,25 @@ public class Image extends MessageComponent implements Transferable {
 
 	public static MessageComponent fromUrl(String url) {
 		try {
-			java.awt.Image image = imageFromUrl(url);
-			return new Image(0, url, image);
+			BufferedImage image = imageFromUrl(url);
+			return new Image(0, image);
 		} catch (SSLHandshakeException e) {
 			return Text.fromString(url);
 		}
+	}
+
+	public static MessageComponent fromResultSet(ResultSet resultSet) {
+		try {
+			BufferedImage image = imageFromStream(resultSet.getBinaryStream("data"));
+			if (image != null) {
+				return new Image(resultSet.getInt("image_id"), image);
+			} else {
+				return Text.fromString("Image Couldn't load");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static ArrayList<MessageComponent> extractFrom(WebElement messageElement) {
@@ -127,24 +162,16 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	@Override
+	public String prettyPrint() {
+		return "(\"" + hashCode() + "\")";
+	}
+
+	@Override
 	public void send(WebElement inputBox) {
 		CLIPBOT.paste(this, inputBox);
 	}
 
-	@Override
-	public String prettyPrint() {
-		return "(\"" + url + "\")";
-	}
-
-	public int getID() {
-		return ID;
-	}
-
-	public java.awt.Image getImage() {
+	public BufferedImage getImage() {
 		return image;
-	}
-
-	public String getUrl() {
-		return url;
 	}
 }

@@ -1,14 +1,16 @@
-package bot.utils.message;
+package com.hollandjake.messengerBotAPI.message;
 
 import com.google.errorprone.annotations.ForOverride;
 import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
 
-public abstract class MessageComponent {
-	public abstract void send(WebElement inputBox);
 
-	public abstract String prettyPrint();
+public abstract class MessageComponent extends DatabaseObject {
+
+	MessageComponent(Integer id) {
+		super(id);
+	}
 
 	static ArrayList<MessageComponent> extractComponents(WebElement messageElement) {
 		ArrayList<MessageComponent> messageComponents = new ArrayList<>();

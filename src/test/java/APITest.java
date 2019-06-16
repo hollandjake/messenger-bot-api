@@ -1,6 +1,6 @@
-import bot.API;
-import bot.utils.Config;
-import bot.utils.message.Message;
+import com.hollandjake.messengerBotAPI.API;
+import com.hollandjake.messengerBotAPI.message.Message;
+import com.hollandjake.messengerBotAPI.util.Config;
 
 class APITest extends API {
 
@@ -15,6 +15,6 @@ class APITest extends API {
 
 	@Override
 	public void newMessage(Message message) {
-		message.prettyPrint();
+		message.print();
 	}
 }

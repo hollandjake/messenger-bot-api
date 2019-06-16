@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package bot.utils;
+package com.hollandjake.messengerBotAPI.util;
 
 public interface XPATHS {
 	//Login
@@ -30,6 +30,11 @@ public interface XPATHS {
 	 * RETURNS @data-tooltip-content
 	 */
 	String MESSAGE_DATE = "./descendant::div[@data-tooltip-content]";
+
+	/**
+	 * RETURNS @data-tooltip-content
+	 */
+	String MESSAGE_SENDER = "./../../div[@class='_1t_q']/div/div[@data-tooltip-content]";
 
 	/**
 	 * RETURNS @aria-label
@@ -175,4 +180,12 @@ public interface XPATHS {
 		</div>
 	</div>
 	 */
+
+	static String LAST_MINUS_N(String query, int n) {
+		return "(" + query + ")[last()-" + n + "]";
+	}
+
+	static String LAST(String query) {
+		return LAST_MINUS_N(query, 0);
+	}
 }

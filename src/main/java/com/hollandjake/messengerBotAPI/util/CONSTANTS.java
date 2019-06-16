@@ -1,4 +1,4 @@
-package bot.utils;
+package com.hollandjake.messengerBotAPI.util;
 
 import org.openqa.selenium.Keys;
 
@@ -18,12 +18,4 @@ public interface CONSTANTS {
 	//region Image
 	int MAX_IMAGE_SIZE = 200000; //In Bytes
 	//endregion
-
-	static String LAST_MINUS_N(String query, int n) {
-		return "(" + query + ")[last()-" + n + "]";
-	}
-
-	static String LAST(String query) {
-		return LAST_MINUS_N(query, 0);
-	}
 }

@@ -1,8 +1,8 @@
-package bot.threads;
+package com.hollandjake.messengerBotAPI.threads;
 
-import bot.API;
-import bot.utils.WebController;
-import bot.utils.message.Message;
+import com.hollandjake.messengerBotAPI.API;
+import com.hollandjake.messengerBotAPI.message.Message;
+import com.hollandjake.messengerBotAPI.util.WebController;
 
 public class WaitForMessage extends Thread {
 	private final API api;

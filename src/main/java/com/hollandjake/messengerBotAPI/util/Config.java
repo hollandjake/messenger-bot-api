@@ -1,8 +1,9 @@
-package bot.utils;
+package com.hollandjake.messengerBotAPI.util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.MalformedParametersException;
 import java.util.Properties;
 
 public class Config extends Properties {
@@ -50,6 +51,19 @@ public class Config extends Properties {
 	}
 
 	public boolean hasProperty(String key) {
-		return containsKey(key);
+		return containsKey(key) && getProperty(key).length() > 0;
+	}
+
+	public void checkForProperties(String... properties) {
+		StringBuilder missingProperties = new StringBuilder();
+		for (String property : properties) {
+			if (!containsKey(property)) {
+				missingProperties.append("'").append(property).append("',");
+			}
+		}
+		if (!missingProperties.toString().equals("")) {
+			missingProperties = new StringBuilder(missingProperties.toString().replaceFirst(",$", ""));
+			throw new MalformedParametersException(missingProperties + " are required");
+		}
 	}
 }

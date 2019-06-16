@@ -1,15 +1,16 @@
-package bot;
+package com.hollandjake.messengerBotAPI;
 
-import bot.threads.WaitForMessage;
-import bot.utils.Config;
-import bot.utils.WebController;
-import bot.utils.message.Message;
+import com.hollandjake.messengerBotAPI.message.Message;
+import com.hollandjake.messengerBotAPI.message.MessageThread;
+import com.hollandjake.messengerBotAPI.threads.WaitForMessage;
+import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messengerBotAPI.util.WebController;
 
-import java.lang.reflect.MalformedParametersException;
 import java.time.Duration;
 
 public abstract class API extends Thread {
 	private final boolean debugging;
+	private final MessageThread thread;
 	protected Config config;
 	private WebController webController;
 	private boolean running = false;
@@ -22,14 +23,9 @@ public abstract class API extends Thread {
 		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));
 		refreshRate = Long.valueOf(config.getProperty("refresh_rate"));
 
-		webController = new WebController(config, this);
-
 		//Login to the thread
-		if (config.hasProperty("email") && config.hasProperty("password") && config.hasProperty("thread_id")) {
-			webController.openThread(config.getProperty("email"), config.getProperty("password"), config.getProperty("thread_id"));
-		} else {
-			throw new MalformedParametersException("'email', 'password', 'thread_id' properties are required");
-		}
+		webController = new WebController(config, this);
+		this.thread = webController.getThread();
 		//Load this system
 
 		if (debugging) {
@@ -42,7 +38,14 @@ public abstract class API extends Thread {
 
 
 		running = true;
+
 		//Create threads
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> webController.quit()));
+
+		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> {
+			e.printStackTrace();
+			System.exit(1);
+		});
 
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
@@ -64,6 +67,10 @@ public abstract class API extends Thread {
 
 	public long getRefreshRate() {
 		return refreshRate;
+	}
+
+	public MessageThread getThread() {
+		return thread;
 	}
 
 	public boolean isRunning() {
