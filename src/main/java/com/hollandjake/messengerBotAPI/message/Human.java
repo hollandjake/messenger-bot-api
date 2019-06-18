@@ -4,12 +4,15 @@ import com.hollandjake.messengerBotAPI.util.DatabaseController;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.datatransfer.StringSelection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
+import static com.hollandjake.messengerBotAPI.util.XPATHS.MENTIONS;
 import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_SENDER;
 
 public class Human extends DatabaseObject {
@@ -24,7 +27,7 @@ public class Human extends DatabaseObject {
 		WebElement humanContainer = messageElement.findElement(By.xpath(MESSAGE_SENDER));
 		String name = humanContainer.getAttribute("data-tooltip-content");
 		Human human = new Human(null, name);
-		return db.saveHuman(human);
+		return human;
 	}
 
 	public static Human fromResultSet(ResultSet resultSet) {
@@ -42,8 +45,9 @@ public class Human extends DatabaseObject {
 	}
 
 	@Override
-	public void send(WebElement inputBox) {
+	public void send(WebElement inputBox, WebDriverWait wait) {
 		CLIPBOT.paste(new StringSelection(prettyPrint()), inputBox);
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(MENTIONS)));
 		inputBox.sendKeys(Keys.ENTER);
 	}
 

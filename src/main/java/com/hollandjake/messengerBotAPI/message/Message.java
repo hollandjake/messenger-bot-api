@@ -3,6 +3,7 @@ package com.hollandjake.messengerBotAPI.message;
 import com.hollandjake.messengerBotAPI.util.DatabaseController;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,8 +42,9 @@ public class Message extends DatabaseObject {
 		int messageId = resultSet.getInt("message_id");
 		MessageThread thread = db.getThread();
 		MessageDate date = MessageDate.fromResultSet(resultSet);
-		Human sender = db.getMessageHuman(messageId);
+		Human sender = Human.fromResultSet(resultSet);
 		List<MessageComponent> components = db.getMessageComponents(messageId);
+
 		return new Message(
 				messageId,
 				thread,
@@ -52,6 +54,7 @@ public class Message extends DatabaseObject {
 	}
 
 	public static Message fromElement(DatabaseController db, WebElement messageElement) {
+
 		MessageDate date = MessageDate.extractFrom(messageElement);
 		if (date != null) {
 			List<MessageComponent> components = MessageComponent.extractComponents(messageElement);
@@ -66,10 +69,10 @@ public class Message extends DatabaseObject {
 		return "Message #" + id + " {" + date.prettyPrint() + "}, " + sender.prettyPrint() + " -> [" + components.stream().map(MessageComponent::prettyPrint).collect(Collectors.joining()) + "]";
 	}
 
-	public void send(WebElement inputBox) {
+	public void send(WebElement inputBox, WebDriverWait wait) {
 		CLIPBOT.cache();
 		for (MessageComponent messageComponent : components) {
-			messageComponent.send(inputBox);
+			messageComponent.send(inputBox, wait);
 		}
 		inputBox.sendKeys(Keys.ENTER);
 		CLIPBOT.flush();

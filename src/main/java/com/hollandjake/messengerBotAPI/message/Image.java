@@ -2,6 +2,7 @@ package com.hollandjake.messengerBotAPI.message;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -11,7 +12,10 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.ResultSet;
@@ -25,7 +29,7 @@ import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
 import static com.hollandjake.messengerBotAPI.util.CONSTANTS.MAX_IMAGE_SIZE;
 import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_IMAGE;
 
-public class Image extends MessageComponent implements Transferable, Serializable {
+public class Image extends MessageComponent implements Transferable {
 	private static final Pattern REGEX = Pattern.compile("url\\(\"(\\S+?)\"\\)");
 
 	private final BufferedImage image;
@@ -163,11 +167,11 @@ public class Image extends MessageComponent implements Transferable, Serializabl
 
 	@Override
 	public String prettyPrint() {
-		return "(\"" + hashCode() + "\")";
+		return "(\"" + id + "\")";
 	}
 
 	@Override
-	public void send(WebElement inputBox) {
+	public void send(WebElement inputBox, WebDriverWait wait) {
 		CLIPBOT.paste(this, inputBox);
 	}
 

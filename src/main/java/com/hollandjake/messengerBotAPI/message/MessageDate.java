@@ -2,13 +2,16 @@ package com.hollandjake.messengerBotAPI.message;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.datatransfer.StringSelection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -34,22 +37,38 @@ public class MessageDate extends MessageObject {
 	public static MessageDate extractFrom(WebElement messageElement) {
 		List<WebElement> webElements = messageElement.findElements(By.xpath(MESSAGE_DATE));
 		Optional<WebElement> dateElements = messageElement.findElements(By.xpath(MESSAGE_DATE)).stream().findFirst();
+		LocalDateTime dateTime;
 		if (dateElements.isPresent()) {
 			WebElement dateElement = dateElements.get();
 			String dateString = dateElement.getAttribute("data-tooltip-content").replace("at ", "");
-			Matcher matcher = pattern.matcher(dateString);
+			Matcher matcher = Pattern.compile("(\\d\\d):(\\d\\d)").matcher(dateString);
 			if (matcher.matches()) {
 				//Message is from today
-				return new MessageDate(LocalDateTime.of(
+				dateTime = LocalDateTime.of(
 						LocalDate.now(),
 						LocalTime.of(
 								Integer.valueOf(matcher.group(1)),
 								Integer.valueOf(matcher.group(2))
 						)
-				));
+				);
 			} else {
-				return new MessageDate(LocalDateTime.parse(dateString, MESSAGE_DATE_FORMATTER));
+				matcher = Pattern.compile("(\\S+) (\\d\\d):(\\d\\d)").matcher(dateString);
+				if (matcher.matches()) {
+					//Message is from this week
+					DayOfWeek dayOfWeek = DayOfWeek.valueOf(matcher.group(1).toUpperCase());
+
+					dateTime = LocalDateTime.of(
+							LocalDate.now(),
+							LocalTime.of(
+									Integer.valueOf(matcher.group(2)),
+									Integer.valueOf(matcher.group(3))
+							)
+					).with(TemporalAdjusters.previous(dayOfWeek));
+				} else {
+					dateTime = LocalDateTime.parse(dateString, MESSAGE_DATE_FORMATTER);
+				}
 			}
+			return new MessageDate(dateTime);
 		} else {
 			return null;
 		}
@@ -69,7 +88,7 @@ public class MessageDate extends MessageObject {
 	}
 
 	@Override
-	public void send(WebElement inputBox) {
+	public void send(WebElement inputBox, WebDriverWait wait) {
 		CLIPBOT.paste(new StringSelection("[" + prettyPrint() + "]"), inputBox);
 	}
 

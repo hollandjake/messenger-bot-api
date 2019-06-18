@@ -16,6 +16,7 @@ public interface XPATHS {
 
 	//Inputs
 	String INPUT_BOX = "//div[@class='notranslate _5rpu']";
+	String MENTIONS = "//div[@data-testid='mentions-contextual-layer']";
 
 	//Messages
 	String ALL_MESSAGES = "//div[contains(@class, 'clearfix _o46 _3erg')]";

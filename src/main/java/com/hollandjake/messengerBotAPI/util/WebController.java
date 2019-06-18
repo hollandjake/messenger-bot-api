@@ -10,6 +10,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hollandjake.messengerBotAPI.util.XPATHS.*;
@@ -23,6 +24,7 @@ public class WebController {
 	private final Config config;
 	private final MessageThread thread;
 	private final DatabaseController db;
+	private int numMessages;
 
 	public WebController(Config config, API api) {
 		config.checkForProperties("email", "password", "thread_name");
@@ -40,7 +42,7 @@ public class WebController {
 
 		ChromeOptions chromeOptions = new ChromeOptions();
 		this.webDriver = new ChromeDriver(chromeOptions);
-		this.wait = new WebDriverWait(this.webDriver, 30L);
+		this.wait = new WebDriverWait(this.webDriver, 30L, api.getRefreshRate());
 		this.messageWait = new WebDriverWait(this.webDriver, api.getMessageTimeout().getSeconds(), api.getRefreshRate());
 
 		//Setup inputs
@@ -58,19 +60,26 @@ public class WebController {
 			webDriver.findElement(By.xpath(XPATHS.LOGIN_PASS)).sendKeys(password);
 			webDriver.findElement(By.xpath(XPATHS.LOGIN)).click();
 		}
-		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(LOADING_WHEEL)));
+		wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(OTHERS_MESSAGES), 0));
+		numMessages = getNumberOfMessages();
 	}
 
-	public Message waitForMessage() {
+	public List<Message> waitForMessage() {
 		while (api.isRunning()) {
 			try {
-				wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(OTHERS_MESSAGES), getNumberOfMessages()));
-				Message message = Message.fromElement(db, webDriver.findElement(By.xpath(LAST(OTHERS_MESSAGES))));
-				if (message != null) {
-					return message;
+				messageWait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(OTHERS_MESSAGES), numMessages));
+				int newCount = getNumberOfMessages();
+				List<Message> messages = new ArrayList<>();
+				for (int i = newCount - numMessages; i > 0; i--) {
+					Message message = Message.fromElement(db, webDriver.findElement(By.xpath(LAST_MINUS_N(OTHERS_MESSAGES, i - 1))));
+					if (message != null) {
+						messages.add(message);
+					}
 				}
+				numMessages = newCount;
+				return messages;
 			} catch (TimeoutException e) {
-				if (config.getProperty("debug_messages") != null) {
+				if (Boolean.valueOf(config.getProperty("debug")) || Boolean.valueOf(config.getProperty("debug_messages"))) {
 					System.out.println("No messaged received in the last " + api.getMessageTimeout().toString()
 							.substring(2)
 							.replaceAll("(\\d[HMS])(?!$)", "$1 ")
@@ -94,7 +103,7 @@ public class WebController {
 		inputBox.click();
 
 		//Send message
-		message.send(inputBox);
+		message.send(inputBox, wait);
 	}
 
 	public int getNumberOfMessages() {

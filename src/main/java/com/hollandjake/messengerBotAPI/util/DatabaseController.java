@@ -40,40 +40,31 @@ public class DatabaseController {
 	private CallableStatement GET_THREAD;
 
 	/**
-	 * Saves a {@link Human} to the database
+	 * Gets a {@link Human} from the database
+	 * If one doesnt exist it creates it
 	 * <p>
 	 * Params: <br>
-	 * &emsp; hName {@link String} The humans name that's trying to be added<br>
+	 * &emsp; humanName {@link Integer} The Humans name<br>
 	 * <p>
 	 * Returns: <br>
-	 * &emsp; human_id {@link Integer} Humans Identifier <br>
-	 * &emsp; name {@link String} Humans name<br>
+	 * &emsp; human_id {@link Integer} Human id<br>
+	 * &emsp; name {@link String} Human name<br>
 	 */
-	private CallableStatement SAVE_HUMAN;
-	/**
-	 * Gets a {@link Human} from a message
-	 * <p>
-	 * Params: <br>
-	 * &emsp; threadId {@link Integer} The thread id<br>
-	 * &emsp; messageId {@link Integer} The message id<br>
-	 * <p>
-	 * Returns: <br>
-	 * &emsp; human_id {@link Integer} Humans Identifier <br>
-	 * &emsp; name {@link String} Humans name<br>
-	 */
-	private PreparedStatement GET_MESSAGE_HUMAN;
+	private CallableStatement GET_HUMAN;
 
 	/**
 	 * Saves a {@link Message} to the database
 	 * <p>
 	 * Params: <br>
 	 * &emsp; threadId {@link Integer} The thread id<br>
-	 * &emsp; senderId {@link Integer} The senders {@link Human} id<br>
+	 * &emsp; senderId {@link String} The senders {@link Human} name<br>
 	 * &emsp; date {@link LocalDateTime} The messages date<br>
 	 * <p>
 	 * Returns: <br>
 	 * &emsp; message_id {@link Integer} Messages Identifier<br>
 	 * &emsp; date {@link LocalDateTime} Messages date<br>
+	 * &emsp; human_id {@link Integer} Sender id<br>
+	 * &emsp; name {@link String} Sender name<br>
 	 */
 	private CallableStatement SAVE_MESSAGE;
 	/**
@@ -81,13 +72,28 @@ public class DatabaseController {
 	 * <p>
 	 * Params: <br>
 	 * &emsp; threadId {@link Integer} The thread id<br>
-	 * &emsp; messageId {@link Integer} The messages id<br>
+	 * &emsp; messageId {@link Integer} The message id<br>
 	 * <p>
 	 * Returns: <br>
 	 * &emsp; message_id {@link Integer} Messages Identifier<br>
 	 * &emsp; date {@link LocalDateTime} Messages date<br>
+	 * &emsp; human_id {@link Integer} Sender id<br>
+	 * &emsp; name {@link String} Sender name<br>
 	 */
 	private PreparedStatement GET_MESSAGE;
+	/**
+	 * Gets the latest {@link Message} from the database for a thread
+	 * <p>
+	 * Params: <br>
+	 * &emsp; threadId {@link Integer} The thread id<br>
+	 * <p>
+	 * Returns: <br>
+	 * &emsp; message_id {@link Integer} Messages Identifier<br>
+	 * &emsp; date {@link LocalDateTime} Messages date<br>
+	 * &emsp; human_id {@link Integer} Sender id<br>
+	 * &emsp; name {@link String} Sender name<br>
+	 */
+	private CallableStatement GET_LATEST_MESSAGE;
 
 	/**
 	 * Saves a {@link Image} to the database
@@ -99,9 +105,8 @@ public class DatabaseController {
 	 * <p>
 	 * Returns: <br>
 	 * &emsp; image_id {@link Integer} Images Identifier <br>
-	 * &emsp; data {@link BufferedImage} Images data<br>
 	 */
-	private CallableStatement SAVE_MESSAGE_IMAGE;
+	private PreparedStatement SAVE_MESSAGE_IMAGE;
 	/**
 	 * Gets a {@link List<Image>} from a message
 	 * <p>
@@ -125,9 +130,8 @@ public class DatabaseController {
 	 * <p>
 	 * Returns: <br>
 	 * &emsp; text_id {@link Integer} Texts Identifier <br>
-	 * &emsp; text {@link String} The content<br>
 	 */
-	private CallableStatement SAVE_MESSAGE_TEXT;
+	private PreparedStatement SAVE_MESSAGE_TEXT;
 	/**
 	 * Gets a {@link List<Text>} from a message
 	 * <p>
@@ -232,30 +236,41 @@ public class DatabaseController {
 		//region Thread
 		GET_THREAD = connection.prepareCall("{CALL GetThread(?)}");
 		//endregion
-		//region Human
-		SAVE_HUMAN = connection.prepareCall("{CALL SaveHuman(?)}");
 
-		GET_MESSAGE_HUMAN = connection.prepareStatement("" +
-				"SELECT " +
-				"   H.human_id," +
-				"   name " +
-				"FROM human H " +
-				"JOIN message M on H.human_id = M.sender_id " +
-				"WHERE M.thread_id = ? AND M.message_id = ? " +
-				"LIMIT 1");
+		//region Human
+		GET_HUMAN = connection.prepareCall("{CALL GetHuman(?)}");
 		//endregion
+
 		//region Message
 		SAVE_MESSAGE = connection.prepareCall("{CALL SaveMessage(?, ?, ?)}");
 
 		GET_MESSAGE = connection.prepareStatement("" +
 				"SELECT " +
 				"   M.message_id," +
-				"   date " +
+				"   date," +
+				"   H.human_id," +
+				"   name " +
 				"FROM message M " +
-				"WHERE M.thread_id = ? AND M.message_id = ? " +
+				"JOIN human H on M.sender_id = H.human_id " +
+				"WHERE thread_id = ? AND message_id = ? " +
 				"LIMIT 1");
+
+		GET_LATEST_MESSAGE = connection.prepareCall("{CALL GetLatestMessage(?)}");
 		//endregion
 
+		//region Text
+		GET_MESSAGE_TEXT = connection.prepareStatement("" +
+				"SELECT " +
+				"   T.text_id," +
+				"   text " +
+				"FROM text T " +
+				"JOIN message_text MT on T.text_id = MT.text_id " +
+				"WHERE thread_id = ? AND message_id = ?");
+
+		SAVE_MESSAGE_TEXT = connection.prepareStatement("SELECT SaveText(?, ?, ?)");
+		//endregion
+
+		//region Image
 		GET_MESSAGE_IMAGE = connection.prepareStatement("" +
 				"SELECT " +
 				"   I.image_id," +
@@ -264,16 +279,8 @@ public class DatabaseController {
 				"JOIN message_image MI on I.image_id = MI.image_id " +
 				"WHERE thread_id = ? AND message_id = ?");
 
-		SAVE_MESSAGE_IMAGE = connection.prepareCall("{CALL SaveImage(?, ?, ?)}");
-		SAVE_MESSAGE_TEXT = connection.prepareCall("{CALL SaveText(?, ?, ?)}");
-
-		GET_MESSAGE_TEXT = connection.prepareStatement("" +
-				"SELECT " +
-				"   T.text_id," +
-				"   text " +
-				"FROM text T " +
-				"JOIN message_text MT on T.text_id = MT.text_id " +
-				"WHERE thread_id = ? AND message_id = ?");
+		SAVE_MESSAGE_IMAGE = connection.prepareStatement("SELECT SaveImage(?, ?, ?)");
+		//endregion
 	}
 
 	public MessageThread getThread(String threadName) {
@@ -290,26 +297,11 @@ public class DatabaseController {
 		return null;
 	}
 
-	public Human saveHuman(Human human) {
+	public Human getHuman(String name) {
 		checkConnection();
 		try {
-			SAVE_HUMAN.setString(1, human.getName());
-			ResultSet resultSet = SAVE_HUMAN.executeQuery();
-			if (resultSet.next()) {
-				return Human.fromResultSet(resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public Human getMessageHuman(int messageId) {
-		checkConnection();
-		try {
-			GET_MESSAGE_HUMAN.setInt(1, thread.getId());
-			GET_MESSAGE_HUMAN.setInt(2, messageId);
-			ResultSet resultSet = GET_MESSAGE_HUMAN.executeQuery();
+			GET_HUMAN.setString(1, name);
+			ResultSet resultSet = GET_HUMAN.executeQuery();
 			if (resultSet.next()) {
 				return Human.fromResultSet(resultSet);
 			}
@@ -323,7 +315,7 @@ public class DatabaseController {
 		checkConnection();
 		try {
 			SAVE_MESSAGE.setInt(1, thread.getId());
-			SAVE_MESSAGE.setInt(2, message.getSender().getId());
+			SAVE_MESSAGE.setString(2, message.getSender().getName());
 			SAVE_MESSAGE.setTimestamp(3, Timestamp.valueOf(message.getDate().getDate()));
 			ResultSet resultSet = SAVE_MESSAGE.executeQuery();
 			if (resultSet.next()) {
@@ -415,6 +407,20 @@ public class DatabaseController {
 			e.printStackTrace();
 		}
 		return components;
+	}
+
+	private Message getLatestMessage() {
+		checkConnection();
+		try {
+			GET_LATEST_MESSAGE.setInt(1, thread.getId());
+			ResultSet resultSet = GET_LATEST_MESSAGE.executeQuery();
+			if (resultSet.next()) {
+				return Message.fromResultSet(this, resultSet);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public MessageThread getThread() {

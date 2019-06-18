@@ -42,13 +42,15 @@ public abstract class API extends Thread {
 		//Create threads
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> webController.quit()));
 
-		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> {
-			e.printStackTrace();
-			System.exit(1);
-		});
+		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> errorHandler(e));
 
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
+	}
+
+	public void errorHandler(Throwable e) {
+		e.printStackTrace();
+		System.exit(1);
 	}
 
 	public abstract void newMessage(Message message);

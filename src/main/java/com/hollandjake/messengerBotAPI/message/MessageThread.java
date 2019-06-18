@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MessageThread {
-	private final int id;
+	private final Integer id;
 	private final String threadName;
 
 	private MessageThread(int id, String threadName) {

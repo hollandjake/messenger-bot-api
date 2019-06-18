@@ -2,9 +2,9 @@ package com.hollandjake.messengerBotAPI.message;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.awt.datatransfer.StringSelection;
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_TEXT;
 import static org.apache.commons.lang.StringEscapeUtils.unescapeHtml;
 
 
-public class Text extends MessageComponent implements Serializable {
+public class Text extends MessageComponent {
 	private final String text;
 
 	private Text(int id, String text) {
@@ -51,7 +51,7 @@ public class Text extends MessageComponent implements Serializable {
 	}
 
 	@Override
-	public void send(WebElement inputBox) {
+	public void send(WebElement inputBox, WebDriverWait wait) {
 		CLIPBOT.paste(new StringSelection(unescapeHtml(text) + " "), inputBox);
 	}
 
