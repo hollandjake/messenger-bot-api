@@ -36,11 +36,19 @@ public class WebController {
 
 		//Setup Driver
 		if (config.hasProperty("chromedriver")) {
-			System.out.println("User provided chromedriver");
+			if (Boolean.valueOf(config.getProperty("debug"))) {
+				System.out.println("User provided chromedriver");
+			}
 			System.setProperty("webdriver.chrome.driver", config.getProperty("chromedriver"));
 		}
 
 		ChromeOptions chromeOptions = new ChromeOptions();
+		chromeOptions.addArguments(
+				"--log-level=3",
+				"--lang=en-GB",
+				"--mute-audio",
+				"--disable-infobars",
+				"--disable-notifications");
 		this.webDriver = new ChromeDriver(chromeOptions);
 		this.wait = new WebDriverWait(this.webDriver, 30L, api.getRefreshRate());
 		this.messageWait = new WebDriverWait(this.webDriver, api.getMessageTimeout().getSeconds(), api.getRefreshRate());
@@ -94,7 +102,9 @@ public class WebController {
 
 	public void quit() {
 		webDriver.quit();
-		System.out.println("Closed browser");
+		if (Boolean.valueOf(config.getProperty("debug"))) {
+			System.out.println("Closed browser");
+		}
 	}
 
 	public void sendMessage(Message message) {

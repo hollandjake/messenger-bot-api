@@ -168,11 +168,13 @@ public class DatabaseController {
 		closeConnection();
 
 		try {
-			System.out.println("Connecting to Database");
+			if (Boolean.valueOf(config.getProperty("debug"))) {
+				System.out.println("Connecting to Database");
+			}
 			shutdownThread.run();
 			connection = DriverManager.getConnection(
 					config.getProperty("db_url") + "?" +
-							"sessionVariables=wait_timeout=" + (connectionTimeout.toSeconds()) + "," +
+							"sessionVariables=wait_timeout=" + (connectionTimeout.getSeconds()) + "," +
 							"character_set_client=utf8mb4,character_set_results=utf8mb4,character_set_connection=utf8mb4" +
 							"&autoReconnect=true" +
 							"&useCompression=true" +
