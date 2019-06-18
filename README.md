@@ -1,4 +1,4 @@
-# MessengerBotAPI [![Build Status](https://travis-ci.org/hollandjake/MessengerBotAPI.svg?branch=master)](https://travis-ci.org/hollandjake/MessengerBotAPI)
+# MessengerBotAPI [![Build Status](https://travis-ci.com/hollandjake/MessengerBotAPI.svg?branch=master)](https://travis-ci.com/hollandjake/MessengerBotAPI)
 
 Facebook messenger group chat com.hollandjake. Provides a comprehensive API for a user to interact with the messenger interface using the Selenium framework.
 
@@ -18,7 +18,7 @@ class Chatbot extends API {
 
 	@Override
 	public void newMessage(Message message) {
-		message.prettyPrint();
+		message.print();
 	}
 }
 ```
