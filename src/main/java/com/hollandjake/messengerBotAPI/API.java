@@ -1,11 +1,13 @@
 package com.hollandjake.messengerBotAPI;
 
+import com.google.errorprone.annotations.ForOverride;
 import com.hollandjake.messengerBotAPI.message.Message;
 import com.hollandjake.messengerBotAPI.message.MessageThread;
 import com.hollandjake.messengerBotAPI.threads.WaitForMessage;
 import com.hollandjake.messengerBotAPI.util.Config;
 import com.hollandjake.messengerBotAPI.util.WebController;
 
+import java.sql.Connection;
 import java.time.Duration;
 
 public abstract class API extends Thread {
@@ -53,7 +55,13 @@ public abstract class API extends Thread {
 		System.exit(1);
 	}
 
-	public abstract void newMessage(Message message);
+	@ForOverride
+	public void newMessage(Message message) {
+	}
+
+	@ForOverride
+	public void databaseReload(Connection connection) {
+	}
 
 	public void sendMessage(Message message) {
 		webController.sendMessage(message);

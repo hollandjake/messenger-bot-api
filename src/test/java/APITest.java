@@ -2,6 +2,8 @@ import com.hollandjake.messengerBotAPI.API;
 import com.hollandjake.messengerBotAPI.message.Message;
 import com.hollandjake.messengerBotAPI.util.Config;
 
+import java.sql.Connection;
+
 class APITest extends API {
 
 	public APITest(Config config) {
@@ -16,5 +18,10 @@ class APITest extends API {
 	@Override
 	public void newMessage(Message message) {
 		message.print();
+	}
+
+	@Override
+	public void databaseReload(Connection connection) {
+
 	}
 }

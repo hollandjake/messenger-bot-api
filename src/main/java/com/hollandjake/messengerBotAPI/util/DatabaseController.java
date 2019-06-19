@@ -283,6 +283,8 @@ public class DatabaseController {
 
 		SAVE_MESSAGE_IMAGE = connection.prepareStatement("SELECT SaveImage(?, ?, ?)");
 		//endregion
+
+		api.databaseReload(connection);
 	}
 
 	public MessageThread getThread(String threadName) {
