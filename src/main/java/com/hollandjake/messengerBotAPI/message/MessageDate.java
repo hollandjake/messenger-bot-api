@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +22,8 @@ import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_DATE;
 
 public class MessageDate extends MessageObject {
 
-	private static Pattern pattern = Pattern.compile("(\\d\\d):(\\d\\d)");
+	private static Pattern TODAY_REGEX = Pattern.compile("(\\d\\d):(\\d\\d)");
+	private static Pattern OTHER_DAY_REGEX = Pattern.compile("(\\S+) (\\d\\d):(\\d\\d)");
 	private final LocalDateTime date;
 
 	private MessageDate(LocalDateTime date) {
@@ -35,13 +35,12 @@ public class MessageDate extends MessageObject {
 	}
 
 	public static MessageDate extractFrom(WebElement messageElement) {
-		List<WebElement> webElements = messageElement.findElements(By.xpath(MESSAGE_DATE));
-		Optional<WebElement> dateElements = messageElement.findElements(By.xpath(MESSAGE_DATE)).stream().findFirst();
+		List<WebElement> dateElements = messageElement.findElements(By.xpath(MESSAGE_DATE));
 		LocalDateTime dateTime;
-		if (dateElements.isPresent()) {
-			WebElement dateElement = dateElements.get();
+		if (!dateElements.isEmpty()) {
+			WebElement dateElement = dateElements.get(0);
 			String dateString = dateElement.getAttribute("data-tooltip-content").replace("at ", "");
-			Matcher matcher = Pattern.compile("(\\d\\d):(\\d\\d)").matcher(dateString);
+			Matcher matcher = TODAY_REGEX.matcher(dateString);
 			if (matcher.matches()) {
 				//Message is from today
 				dateTime = LocalDateTime.of(
@@ -52,7 +51,7 @@ public class MessageDate extends MessageObject {
 						)
 				);
 			} else {
-				matcher = Pattern.compile("(\\S+) (\\d\\d):(\\d\\d)").matcher(dateString);
+				matcher = OTHER_DAY_REGEX.matcher(dateString);
 				if (matcher.matches()) {
 					//Message is from this week
 					DayOfWeek dayOfWeek = DayOfWeek.valueOf(matcher.group(1).toUpperCase());

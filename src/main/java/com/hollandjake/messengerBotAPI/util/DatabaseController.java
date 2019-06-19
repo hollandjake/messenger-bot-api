@@ -168,7 +168,7 @@ public class DatabaseController {
 		closeConnection();
 
 		try {
-			if (Boolean.valueOf(config.getProperty("debug"))) {
+			if (api.debugging()) {
 				System.out.println("Connecting to Database");
 			}
 			shutdownThread.run();

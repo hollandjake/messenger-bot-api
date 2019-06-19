@@ -2,6 +2,7 @@ package com.hollandjake.messengerBotAPI.threads;
 
 import com.hollandjake.messengerBotAPI.API;
 import com.hollandjake.messengerBotAPI.message.Message;
+import com.hollandjake.messengerBotAPI.util.LOG_LEVEL;
 import com.hollandjake.messengerBotAPI.util.WebController;
 
 import java.util.List;
@@ -9,11 +10,13 @@ import java.util.List;
 public class WaitForMessage extends Thread {
 	private final API api;
 	private final WebController webController;
+	private final Boolean echo;
 
 	public WaitForMessage(API api, WebController webController) {
 		this.api = api;
 		this.webController = webController;
 		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> api.errorHandler(e));
+		echo = (Boolean) api.getConfig().get("echo");
 	}
 
 	@Override
@@ -21,7 +24,10 @@ public class WaitForMessage extends Thread {
 		while (api.isRunning()) {
 			List<Message> messages = webController.waitForMessage();
 			for (Message message : messages) {
-				if (Boolean.valueOf(api.getConfig().getProperty("echo"))) {
+				if (api.getLogLevel().greaterThanEqTo(LOG_LEVEL.DEBUG_MESSAGES)) {
+					message.print();
+				}
+				if (echo) {
 					webController.sendMessage(message);
 				}
 				api.newMessage(message);

@@ -1,6 +1,7 @@
 package com.hollandjake.messengerBotAPI.util;
 
 import com.hollandjake.messengerBotAPI.API;
+import com.hollandjake.messengerBotAPI.message.Human;
 import com.hollandjake.messengerBotAPI.message.Message;
 import com.hollandjake.messengerBotAPI.message.MessageThread;
 import org.openqa.selenium.*;
@@ -25,7 +26,6 @@ public class WebController {
 	private final MessageThread thread;
 	private final DatabaseController db;
 	private int numMessages;
-
 	public WebController(Config config, API api) {
 		config.checkForProperties("email", "password", "thread_name");
 
@@ -36,7 +36,7 @@ public class WebController {
 
 		//Setup Driver
 		if (config.hasProperty("chromedriver")) {
-			if (Boolean.valueOf(config.getProperty("debug"))) {
+			if (api.debugging()) {
 				System.out.println("User provided chromedriver");
 			}
 			System.setProperty("webdriver.chrome.driver", config.getProperty("chromedriver"));
@@ -45,6 +45,7 @@ public class WebController {
 		ChromeOptions chromeOptions = new ChromeOptions();
 		chromeOptions.addArguments(
 				"--log-level=3",
+				"--silent",
 				"--lang=en-GB",
 				"--mute-audio",
 				"--disable-infobars",
@@ -52,6 +53,7 @@ public class WebController {
 		this.webDriver = new ChromeDriver(chromeOptions);
 		this.wait = new WebDriverWait(this.webDriver, 30L, api.getRefreshRate());
 		this.messageWait = new WebDriverWait(this.webDriver, api.getMessageTimeout().getSeconds(), api.getRefreshRate());
+		Runtime.getRuntime().addShutdownHook(new Thread(this::quit));
 
 		//Setup inputs
 		this.keyboard = new Actions(this.webDriver);
@@ -87,7 +89,7 @@ public class WebController {
 				numMessages = newCount;
 				return messages;
 			} catch (TimeoutException e) {
-				if (Boolean.valueOf(config.getProperty("debug")) || Boolean.valueOf(config.getProperty("debug_messages"))) {
+				if (api.debugging()) {
 					System.out.println("No messaged received in the last " + api.getMessageTimeout().toString()
 							.substring(2)
 							.replaceAll("(\\d[HMS])(?!$)", "$1 ")
@@ -102,7 +104,7 @@ public class WebController {
 
 	public void quit() {
 		webDriver.quit();
-		if (Boolean.valueOf(config.getProperty("debug"))) {
+		if (api.debugging()) {
 			System.out.println("Closed browser");
 		}
 	}
@@ -114,6 +116,14 @@ public class WebController {
 
 		//Send message
 		message.send(inputBox, wait);
+	}
+
+	public Human getMe() {
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(SETTING_COG))).click();
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(SETTINGS_DROPDOWN))).click();
+		String myName = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(MY_REAL_NAME))).getText();
+		webDriver.findElement(By.xpath(SETTINGS_DONE)).click();
+		return db.getHuman(myName);
 	}
 
 	public int getNumberOfMessages() {

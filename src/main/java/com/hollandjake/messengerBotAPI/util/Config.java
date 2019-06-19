@@ -1,5 +1,8 @@
 package com.hollandjake.messengerBotAPI.util;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.math.NumberUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,5 +68,28 @@ public class Config extends Properties {
 			missingProperties = new StringBuilder(missingProperties.toString().replaceFirst(",$", ""));
 			throw new MalformedParametersException(missingProperties + " are required");
 		}
+	}
+
+	public Object get(String name) {
+		String value = super.getProperty(name);
+		if (value == null) {
+			return null;
+		} else if (name.equals("log_level")) {
+			return LOG_LEVEL.values()[Integer.parseInt(value)];
+		} else {
+			try {
+				return NumberUtils.createNumber(value);
+			} catch (NumberFormatException ignored) {
+			}
+			//Boolean
+			try {
+				Boolean parsed = BooleanUtils.toBooleanObject(value);
+				if (parsed != null) {
+					return parsed;
+				}
+			} catch (Exception ignored) {
+			}
+		}
+		return value;
 	}
 }

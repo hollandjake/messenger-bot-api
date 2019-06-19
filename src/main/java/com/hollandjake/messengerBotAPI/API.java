@@ -1,53 +1,49 @@
 package com.hollandjake.messengerBotAPI;
 
 import com.google.errorprone.annotations.ForOverride;
+import com.hollandjake.messengerBotAPI.message.Human;
 import com.hollandjake.messengerBotAPI.message.Message;
 import com.hollandjake.messengerBotAPI.message.MessageThread;
 import com.hollandjake.messengerBotAPI.threads.WaitForMessage;
 import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messengerBotAPI.util.LOG_LEVEL;
 import com.hollandjake.messengerBotAPI.util.WebController;
 
 import java.sql.Connection;
 import java.time.Duration;
 
 public abstract class API extends Thread {
-	private final boolean debugging;
+	private final LOG_LEVEL logLevel;
 	private final MessageThread thread;
+	private final Human me;
 	protected Config config;
 	private WebController webController;
-	private boolean running = false;
-	private long refreshRate;
+	private boolean running;
+	private int refreshRate;
 	private Duration messageTimeout;
-
 	public API(Config config) {
 		this.config = config;
-		this.debugging = Boolean.valueOf(config.getProperty("debug"));
 		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));
-		refreshRate = Long.valueOf(config.getProperty("refresh_rate"));
+		refreshRate = (int) config.get("refresh_rate");
+		this.logLevel = (LOG_LEVEL) config.get("log_level");
 
 		//Login to the thread
 		webController = new WebController(config, this);
 		this.thread = webController.getThread();
+		this.me = webController.getMe();
 		//Load this system
 
-		if (debugging) {
+		if (LOG_LEVEL.DEBUG.lessThanEqTo(logLevel)) {
 			System.out.println("System is running");
 		}
-
-		if (Boolean.valueOf(config.getProperty("startup_message"))) {
-//			webController.sendMessage();
-		}
-
-
 		running = true;
 
 		//Create threads
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> webController.quit()));
-
 		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> errorHandler(e));
 
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
+		loaded();
 	}
 
 	public void errorHandler(Throwable e) {
@@ -63,19 +59,35 @@ public abstract class API extends Thread {
 	public void databaseReload(Connection connection) {
 	}
 
+	@ForOverride
+	public void loaded() {
+	}
+
 	public void sendMessage(Message message) {
 		webController.sendMessage(message);
+	}
+
+	public void sendMessage(String message) {
+		webController.sendMessage(Message.fromString(thread, me, message));
+	}
+
+	public boolean debugging() {
+		return logLevel.greaterThanEqTo(LOG_LEVEL.DEBUG);
 	}
 
 	public Config getConfig() {
 		return config;
 	}
 
+	public LOG_LEVEL getLogLevel() {
+		return logLevel;
+	}
+
 	public Duration getMessageTimeout() {
 		return messageTimeout;
 	}
 
-	public long getRefreshRate() {
+	public int getRefreshRate() {
 		return refreshRate;
 	}
 

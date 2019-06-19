@@ -22,6 +22,11 @@ class APITest extends API {
 
 	@Override
 	public void databaseReload(Connection connection) {
+		System.out.println("Database reloaded");
+	}
 
+	@Override
+	public void loaded() {
+		System.out.println("Loaded");
 	}
 }
