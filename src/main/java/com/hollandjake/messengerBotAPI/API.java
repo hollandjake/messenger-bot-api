@@ -29,7 +29,6 @@ public abstract class API extends Thread {
 	private boolean running;
 	private int refreshRate;
 	private Duration messageTimeout;
-
 	public API(Config config) {
 		this.config = config;
 		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));
@@ -99,6 +98,10 @@ public abstract class API extends Thread {
 
 	public LOG_LEVEL getLogLevel() {
 		return logLevel;
+	}
+
+	public Human getMe() {
+		return me;
 	}
 
 	public Duration getMessageTimeout() {
