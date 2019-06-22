@@ -10,6 +10,7 @@ import com.hollandjake.messengerBotAPI.util.LOG_LEVEL;
 import com.hollandjake.messengerBotAPI.util.WebController;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Duration;
 
 public abstract class API extends Thread {
@@ -56,7 +57,7 @@ public abstract class API extends Thread {
 	}
 
 	@ForOverride
-	public void databaseReload(Connection connection) {
+	public void databaseReload(Connection connection) throws SQLException {
 	}
 
 	@ForOverride
