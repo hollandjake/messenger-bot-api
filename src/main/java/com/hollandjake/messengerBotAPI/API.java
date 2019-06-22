@@ -52,6 +52,11 @@ public abstract class API extends Thread {
 		System.exit(1);
 	}
 
+	public void quit() {
+		webController.quit(true);
+		System.exit(0);
+	}
+
 	@ForOverride
 	public void newMessage(Message message) {
 	}

@@ -103,9 +103,19 @@ public class WebController {
 	}
 
 	public void quit() {
-		webDriver.quit();
-		if (api.debugging()) {
-			System.out.println("Closed browser");
+		quit(false);
+	}
+
+	public void quit(Boolean withMessage) {
+		if (withMessage) {
+			api.sendMessage("I'm off to sleep now, see you soon!");
+		}
+
+		if (webDriver != null) {
+			webDriver.quit();
+			if (api.debugging()) {
+				System.out.println("Closed browser");
+			}
 		}
 	}
 
