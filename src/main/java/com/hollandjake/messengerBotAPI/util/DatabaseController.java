@@ -233,7 +233,7 @@ public class DatabaseController {
 
 	//endregion
 
-	public void createQueries() throws SQLException {
+	private void createQueries() throws SQLException {
 
 		//region Thread
 		GET_THREAD = connection.prepareCall("{CALL GetThread(?)}");

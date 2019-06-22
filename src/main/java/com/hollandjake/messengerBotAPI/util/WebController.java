@@ -81,7 +81,9 @@ public class WebController {
 				int newCount = getNumberOfMessages();
 				List<Message> messages = new ArrayList<>();
 				for (int i = newCount - numMessages; i > 0; i--) {
-					Message message = Message.fromElement(db, webDriver.findElement(By.xpath(LAST_MINUS_N(OTHERS_MESSAGES, i - 1))));
+					WebElement messageElement = webDriver.findElement(By.xpath(LAST_MINUS_N(OTHERS_MESSAGES, i - 1)));
+					messageElement.click();
+					Message message = Message.fromElement(db, messageElement);
 					if (message != null) {
 						messages.add(message);
 					}
@@ -121,11 +123,13 @@ public class WebController {
 
 	public void sendMessage(Message message) {
 		WebElement inputBox = webDriver.findElement(By.xpath(INPUT_BOX));
-		//Focus Box
-		inputBox.click();
 
 		//Send message
 		message.send(inputBox, wait);
+	}
+
+	public void checkDbConnection() {
+		db.checkConnection();
 	}
 
 	public Human getMe() {
