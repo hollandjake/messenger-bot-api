@@ -77,12 +77,12 @@ public class Image extends MessageComponent implements Transferable {
 		BufferedImage image = null;
 
 		try {
-			int size = inputStream.available();
 			imageInputStream = ImageIO.createImageInputStream(inputStream);
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
 				//Scale image to fit in size
+				long size = imageInputStream.length();
 				double scaleFactor = Math.min(1, MAX_IMAGE_SIZE / size);
 				int scaledWidth = (int) (image.getWidth() * scaleFactor);
 				int scaledHeight = (int) (image.getHeight() * scaleFactor);

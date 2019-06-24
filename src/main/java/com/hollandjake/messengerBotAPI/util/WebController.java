@@ -82,7 +82,7 @@ public class WebController {
 				List<Message> messages = new ArrayList<>();
 				for (int i = newCount - numMessages; i > 0; i--) {
 					WebElement messageElement = webDriver.findElement(By.xpath(LAST_MINUS_N(OTHERS_MESSAGES, i - 1)));
-					messageElement.click();
+					webDriver.findElement(By.xpath(INPUT_BOX)).click();
 					Message message = Message.fromElement(db, messageElement);
 					if (message != null) {
 						messages.add(message);
