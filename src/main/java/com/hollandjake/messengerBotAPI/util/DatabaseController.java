@@ -24,8 +24,6 @@ public class DatabaseController {
 	private LocalDateTime lastCheck;
 	private Connection connection;
 	private final Thread shutdownThread = new Thread(this::closeConnection);
-
-	//region Queries
 	/**
 	 * Gets a {@link MessageThread} from the database
 	 * If one doesnt exist it creates it
@@ -39,6 +37,7 @@ public class DatabaseController {
 	 */
 	private CallableStatement GET_THREAD;
 
+	//region Queries
 	/**
 	 * Gets a {@link Human} from the database
 	 * If one doesnt exist it creates it
@@ -51,7 +50,6 @@ public class DatabaseController {
 	 * &emsp; name {@link String} Human name<br>
 	 */
 	private CallableStatement GET_HUMAN;
-
 	/**
 	 * Saves a {@link Message} to the database
 	 * <p>
@@ -94,7 +92,6 @@ public class DatabaseController {
 	 * &emsp; name {@link String} Sender name<br>
 	 */
 	private CallableStatement GET_LATEST_MESSAGE;
-
 	/**
 	 * Saves a {@link Image} to the database
 	 * <p>
@@ -119,7 +116,6 @@ public class DatabaseController {
 	 * &emsp; data {@link BufferedImage} Images data<br>
 	 */
 	private PreparedStatement GET_MESSAGE_IMAGE;
-
 	/**
 	 * Saves a {@link Text} to the database
 	 * <p>
@@ -144,8 +140,6 @@ public class DatabaseController {
 	 * &emsp; text {@link String} The content<br>
 	 */
 	private PreparedStatement GET_MESSAGE_TEXT;
-	//endregion
-
 	public DatabaseController(API api, Config config) {
 		config.checkForProperties("db_url", "db_username", "db_password");
 		this.api = api;
@@ -158,8 +152,7 @@ public class DatabaseController {
 		openConnection();
 		this.thread = getThread(config.getProperty("thread_name"));
 	}
-
-	//region Connection
+	//endregion
 
 	/**
 	 * Creates a connection and handles any errors
@@ -193,6 +186,8 @@ public class DatabaseController {
 			}
 		}
 	}
+
+	//region Connection
 
 	/**
 	 * Handles closing the connection when its finished with or failed
@@ -230,8 +225,6 @@ public class DatabaseController {
 			}
 		}
 	}
-
-	//endregion
 
 	private void createQueries() throws SQLException {
 
@@ -284,8 +277,12 @@ public class DatabaseController {
 		SAVE_MESSAGE_IMAGE = connection.prepareStatement("SELECT SaveImage(?, ?, ?)");
 		//endregion
 
-		api.databaseReload(connection);
+		if (api.isRunning()) {
+			api.databaseReload(connection);
+		}
 	}
+
+	//endregion
 
 	public MessageThread getThread(String threadName) {
 		checkConnection();
@@ -411,6 +408,11 @@ public class DatabaseController {
 			e.printStackTrace();
 		}
 		return components;
+	}
+
+	public Connection getConnection() {
+		checkConnection();
+		return connection;
 	}
 
 	private Message getLatestMessage() {

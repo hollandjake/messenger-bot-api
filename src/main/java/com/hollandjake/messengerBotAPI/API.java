@@ -6,6 +6,7 @@ import com.hollandjake.messengerBotAPI.message.Message;
 import com.hollandjake.messengerBotAPI.message.MessageThread;
 import com.hollandjake.messengerBotAPI.threads.WaitForMessage;
 import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messengerBotAPI.util.DatabaseController;
 import com.hollandjake.messengerBotAPI.util.LOG_LEVEL;
 import com.hollandjake.messengerBotAPI.util.WebController;
 import org.apache.maven.model.Model;
@@ -21,11 +22,12 @@ import java.sql.SQLException;
 import java.time.Duration;
 
 public abstract class API extends Thread {
-	private final LOG_LEVEL logLevel;
-	private final MessageThread thread;
-	private final Human me;
+	protected final LOG_LEVEL logLevel;
+	protected final MessageThread thread;
+	protected final Human me;
 	protected Config config;
-	private WebController webController;
+	protected WebController webController;
+	protected DatabaseController db;
 	private boolean running;
 	private int refreshRate;
 	private Duration messageTimeout;
@@ -36,7 +38,8 @@ public abstract class API extends Thread {
 		this.logLevel = (LOG_LEVEL) config.get("log_level");
 
 		//Login to the thread
-		webController = new WebController(config, this);
+		this.db = new DatabaseController(this, config);
+		this.webController = new WebController(config, this);
 		this.thread = webController.getThread();
 		this.me = webController.getMe();
 		//Load this system
@@ -52,6 +55,11 @@ public abstract class API extends Thread {
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
 		loaded();
+		try {
+			databaseReload(db.getConnection());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void errorHandler(Throwable e) {
@@ -65,7 +73,7 @@ public abstract class API extends Thread {
 	}
 
 	public void checkDbConnection() {
-		webController.checkDbConnection();
+		db.checkConnection();
 	}
 
 	@ForOverride
@@ -94,6 +102,10 @@ public abstract class API extends Thread {
 
 	public Config getConfig() {
 		return config;
+	}
+
+	public DatabaseController getDb() {
+		return db;
 	}
 
 	public LOG_LEVEL getLogLevel() {

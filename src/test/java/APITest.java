@@ -27,7 +27,6 @@ class APITest extends API {
 
 	@Override
 	public void loaded() {
-		sendMessage(getVersion());
 		System.out.println("Loaded");
 	}
 }

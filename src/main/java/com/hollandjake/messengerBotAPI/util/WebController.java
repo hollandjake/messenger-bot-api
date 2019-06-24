@@ -31,7 +31,7 @@ public class WebController {
 
 		this.api = api;
 		this.config = config;
-		this.db = new DatabaseController(api, config);
+		this.db = api.getDb();
 		this.thread = db.getThread();
 
 		//Setup Driver
@@ -126,10 +126,6 @@ public class WebController {
 
 		//Send message
 		message.send(inputBox, wait);
-	}
-
-	public void checkDbConnection() {
-		db.checkConnection();
 	}
 
 	public Human getMe() {
