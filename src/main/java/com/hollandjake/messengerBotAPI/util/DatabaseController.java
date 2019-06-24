@@ -140,6 +140,20 @@ public class DatabaseController {
 	 * &emsp; text {@link String} The content<br>
 	 */
 	private PreparedStatement GET_MESSAGE_TEXT;
+
+	public DatabaseController(Config config) {
+		config.checkForProperties("db_url", "db_username", "db_password");
+		this.api = null;
+		this.config = config;
+		if (config.hasProperty("db_connection_timeout")) {
+			connectionTimeout = Duration.ofSeconds(Long.valueOf(config.getProperty("db_connection_timeout")));
+		} else {
+			connectionTimeout = Duration.ofSeconds(60);
+		}
+		openConnection();
+		this.thread = null;
+	}
+
 	public DatabaseController(API api, Config config) {
 		config.checkForProperties("db_url", "db_username", "db_password");
 		this.api = api;
@@ -161,7 +175,7 @@ public class DatabaseController {
 		closeConnection();
 
 		try {
-			if (api.debugging()) {
+			if (api != null && api.debugging()) {
 				System.out.println("Connecting to Database");
 			}
 			shutdownThread.run();
@@ -277,7 +291,7 @@ public class DatabaseController {
 		SAVE_MESSAGE_IMAGE = connection.prepareStatement("SELECT SaveImage(?, ?, ?)");
 		//endregion
 
-		if (api.isRunning()) {
+		if (api != null && api.isRunning()) {
 			api.databaseReload(connection);
 		}
 	}
