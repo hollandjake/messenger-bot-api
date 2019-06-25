@@ -40,23 +40,19 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	public InputStream toStream() {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			ImageIO.write(image, "png", out);
+			new ByteArrayInputStream(toByteArrayOutputStream(image).toByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return new ByteArrayInputStream(out.toByteArray());
+		return null;
 	}
 
 	private static BufferedImage imageFromUrl(String url) throws SSLHandshakeException {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-
-		ImageInputStream imageInputStream = null;
 		BufferedImage image = null;
-
 		try {
 			URL U = new URL(url);
 			URLConnection urlConnection = U.openConnection();
@@ -81,8 +77,8 @@ public class Image extends MessageComponent implements Transferable {
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
+				int size = toByteArrayOutputStream(image).size();
 				//Scale image to fit in size
-				long size = imageInputStream.length();
 				double scaleFactor = Math.min(1, MAX_IMAGE_SIZE / size);
 				int scaledWidth = (int) (image.getWidth() * scaleFactor);
 				int scaledHeight = (int) (image.getHeight() * scaleFactor);
@@ -108,6 +104,13 @@ public class Image extends MessageComponent implements Transferable {
 			}
 		}
 		return image;
+	}
+
+	private static ByteArrayOutputStream toByteArrayOutputStream(BufferedImage image) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ImageIO.write(image, "png", out);
+		out.close();
+		return out;
 	}
 
 	public static MessageComponent fromUrl(String url) {
