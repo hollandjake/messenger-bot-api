@@ -41,7 +41,7 @@ public class Image extends MessageComponent implements Transferable {
 
 	public InputStream toStream() {
 		try {
-			new ByteArrayInputStream(toByteArrayOutputStream(image).toByteArray());
+			return new ByteArrayInputStream(toByteArrayOutputStream(image).toByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
