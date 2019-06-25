@@ -1,6 +1,6 @@
 package com.hollandjake.messengerBotAPI.message;
 
-import com.hollandjake.messengerBotAPI.API;
+import com.hollandjake.messengerBotAPI.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -48,7 +48,7 @@ public class Image extends MessageComponent implements Transferable {
 		return null;
 	}
 
-	private static BufferedImage imageFromUrl(String url) throws SSLHandshakeException {
+	private static BufferedImage imageFromUrl(Config config, String url) throws SSLHandshakeException {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
@@ -58,7 +58,7 @@ public class Image extends MessageComponent implements Transferable {
 			URLConnection urlConnection = U.openConnection();
 			urlConnection.connect();
 
-			image = imageFromStream(urlConnection.getInputStream());
+			image = imageFromStream(config, urlConnection.getInputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
 			if (e instanceof SSLHandshakeException) {
@@ -68,7 +68,7 @@ public class Image extends MessageComponent implements Transferable {
 		return image;
 	}
 
-	private static BufferedImage imageFromStream(InputStream inputStream) {
+	private static BufferedImage imageFromStream(Config config, InputStream inputStream) {
 		ImageInputStream imageInputStream = null;
 		BufferedImage image = null;
 
@@ -79,7 +79,7 @@ public class Image extends MessageComponent implements Transferable {
 			if (image != null) {
 				double size = toByteArrayOutputStream(image).size();
 				//Scale image to fit in size
-				double scaleFactor = Math.min(1, (int) API.config.get("image_size") / size);
+				double scaleFactor = Math.min(1, (int) config.get("image_size") / size);
 
 				if (scaleFactor < 1 && scaleFactor > 0) {
 					int scaledWidth = (int) (image.getWidth() * scaleFactor);
@@ -89,7 +89,7 @@ public class Image extends MessageComponent implements Transferable {
 					if (scaledWidth > 0 && scaledHeight > 0) {
 						java.awt.Image scaledImage = image.getScaledInstance(scaledWidth, scaledHeight, java.awt.Image.SCALE_SMOOTH);
 
-						BufferedImage bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+						BufferedImage bufferedImage = new BufferedImage(scaledWidth, scaledHeight, image.getType());
 						Graphics2D g = bufferedImage.createGraphics();
 						g.drawImage(scaledImage, 0, 0, null);
 						g.dispose();
@@ -117,18 +117,18 @@ public class Image extends MessageComponent implements Transferable {
 		return out;
 	}
 
-	public static MessageComponent fromUrl(String url) {
+	public static MessageComponent fromUrl(Config config, String url) {
 		try {
-			BufferedImage image = imageFromUrl(url);
+			BufferedImage image = imageFromUrl(config, url);
 			return new Image(0, image);
 		} catch (SSLHandshakeException e) {
 			return Text.fromString(url);
 		}
 	}
 
-	public static MessageComponent fromResultSet(ResultSet resultSet) {
+	public static MessageComponent fromResultSet(Config config, ResultSet resultSet) {
 		try {
-			BufferedImage image = imageFromStream(resultSet.getBinaryStream("data"));
+			BufferedImage image = imageFromStream(config, resultSet.getBinaryStream("data"));
 			if (image != null) {
 				return new Image(resultSet.getInt("image_id"), image);
 			} else {
@@ -140,7 +140,7 @@ public class Image extends MessageComponent implements Transferable {
 		return null;
 	}
 
-	public static ArrayList<MessageComponent> extractFrom(WebElement messageElement) {
+	public static ArrayList<MessageComponent> extractFrom(Config config, WebElement messageElement) {
 		ArrayList<MessageComponent> messageComponents = new ArrayList<>();
 		List<WebElement> imageComponents = messageElement.findElements(By.xpath(MESSAGE_IMAGE));
 		for (WebElement imageComponent : imageComponents) {
@@ -148,7 +148,7 @@ public class Image extends MessageComponent implements Transferable {
 			Matcher matcher = REGEX.matcher(style);
 			if (matcher.find()) {
 				String imageUrl = matcher.group(1);
-				messageComponents.add(fromUrl(imageUrl));
+				messageComponents.add(fromUrl(config, imageUrl));
 			}
 		}
 		return messageComponents;

@@ -1,5 +1,6 @@
 package com.hollandjake.messengerBotAPI.message;
 
+import com.hollandjake.messengerBotAPI.util.Config;
 import com.hollandjake.messengerBotAPI.util.DatabaseController;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -38,11 +39,11 @@ public class Message extends DatabaseObject {
 		return new Message(null, thread, sender, MessageDate.now(), components);
 	}
 
-	public static Message fromResultSet(DatabaseController db, ResultSet resultSet) throws SQLException {
+	public static Message fromResultSet(Config config, DatabaseController db, ResultSet resultSet) throws SQLException {
 		int messageId = resultSet.getInt("message_id");
 		MessageThread thread = db.getThread();
-		MessageDate date = MessageDate.fromResultSet(resultSet);
-		Human sender = Human.fromResultSet(resultSet);
+		MessageDate date = MessageDate.fromResultSet(config, resultSet);
+		Human sender = Human.fromResultSet(config, resultSet);
 		List<MessageComponent> components = db.getMessageComponents(messageId);
 
 		return new Message(
@@ -54,12 +55,12 @@ public class Message extends DatabaseObject {
 	}
 
 	public static Message fromElement(DatabaseController db, WebElement messageElement) {
-
-		MessageDate date = MessageDate.extractFrom(messageElement);
+		Config config = db.getConfig();
+		MessageDate date = MessageDate.extractFrom(config, messageElement);
 		if (date != null) {
-			List<MessageComponent> components = MessageComponent.extractComponents(messageElement);
+			List<MessageComponent> components = MessageComponent.extractComponents(config, messageElement);
 			if (components.size() > 0) {
-				return db.saveMessage(new Message(null, db.getThread(), Human.extractFrom(db, messageElement), date, components));
+				return db.saveMessage(new Message(null, db.getThread(), Human.extractFrom(config, messageElement), date, components));
 			}
 		}
 		return null;

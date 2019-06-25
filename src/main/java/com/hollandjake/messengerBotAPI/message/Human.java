@@ -1,6 +1,6 @@
 package com.hollandjake.messengerBotAPI.message;
 
-import com.hollandjake.messengerBotAPI.util.DatabaseController;
+import com.hollandjake.messengerBotAPI.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -23,14 +23,14 @@ public class Human extends DatabaseObject {
 		this.name = name;
 	}
 
-	public static Human extractFrom(DatabaseController db, WebElement messageElement) {
+	public static Human extractFrom(Config config, WebElement messageElement) {
 		WebElement humanContainer = messageElement.findElement(By.xpath(MESSAGE_SENDER));
 		String name = humanContainer.getAttribute("data-tooltip-content");
 		Human human = new Human(null, name);
 		return human;
 	}
 
-	public static Human fromResultSet(ResultSet resultSet) {
+	public static Human fromResultSet(Config config, ResultSet resultSet) {
 		try {
 			return new Human(resultSet.getInt("human_id"), resultSet.getString("name"));
 		} catch (SQLException e) {

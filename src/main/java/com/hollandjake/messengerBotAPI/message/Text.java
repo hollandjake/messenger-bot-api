@@ -1,5 +1,6 @@
 package com.hollandjake.messengerBotAPI.message;
 
+import com.hollandjake.messengerBotAPI.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -23,7 +24,7 @@ public class Text extends MessageComponent {
 		this.text = text;
 	}
 
-	public static Text fromResultSet(ResultSet resultSet) {
+	public static Text fromResultSet(Config config, ResultSet resultSet) {
 		try {
 			return new Text(resultSet.getInt("text_id"), resultSet.getString("text"));
 		} catch (SQLException e) {
@@ -36,7 +37,7 @@ public class Text extends MessageComponent {
 		return new Text(0, text);
 	}
 
-	public static ArrayList<MessageComponent> extractFrom(WebElement messageElement) {
+	public static ArrayList<MessageComponent> extractFrom(Config config, WebElement messageElement) {
 		ArrayList<MessageComponent> messageComponents = new ArrayList<>();
 		List<WebElement> textComponents = messageElement.findElements(By.xpath(MESSAGE_TEXT));
 		for (WebElement textComponent : textComponents) {

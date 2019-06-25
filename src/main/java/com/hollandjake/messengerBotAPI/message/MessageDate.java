@@ -1,5 +1,6 @@
 package com.hollandjake.messengerBotAPI.message;
 
+import com.hollandjake.messengerBotAPI.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -34,7 +35,7 @@ public class MessageDate extends MessageObject {
 		return new MessageDate(LocalDateTime.now());
 	}
 
-	public static MessageDate extractFrom(WebElement messageElement) {
+	public static MessageDate extractFrom(Config config, WebElement messageElement) {
 		List<WebElement> dateElements = messageElement.findElements(By.xpath(MESSAGE_DATE));
 		LocalDateTime dateTime;
 		if (!dateElements.isEmpty()) {
@@ -73,7 +74,7 @@ public class MessageDate extends MessageObject {
 		}
 	}
 
-	public static MessageDate fromResultSet(ResultSet resultSet) {
+	public static MessageDate fromResultSet(Config config, ResultSet resultSet) {
 		try {
 			return new MessageDate(resultSet.getTimestamp("date").toLocalDateTime());
 		} catch (SQLException e) {

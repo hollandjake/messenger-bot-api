@@ -1,5 +1,7 @@
 package com.hollandjake.messengerBotAPI.message;
 
+import com.hollandjake.messengerBotAPI.util.Config;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -12,7 +14,7 @@ public class MessageThread {
 		this.threadName = threadName;
 	}
 
-	public static MessageThread fromResultSet(ResultSet resultSet) {
+	public static MessageThread fromResultSet(Config config, ResultSet resultSet) {
 		try {
 			return new MessageThread(resultSet.getInt("thread_id"), resultSet.getString("thread_name"));
 		} catch (SQLException e) {

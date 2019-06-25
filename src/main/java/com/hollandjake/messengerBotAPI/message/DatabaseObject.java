@@ -1,6 +1,7 @@
 package com.hollandjake.messengerBotAPI.message;
 
 import com.google.errorprone.annotations.ForOverride;
+import com.hollandjake.messengerBotAPI.util.Config;
 import com.hollandjake.messengerBotAPI.util.DatabaseController;
 
 import java.sql.ResultSet;
@@ -14,7 +15,7 @@ public abstract class DatabaseObject extends MessageObject {
 	}
 
 	@ForOverride
-	static Object fromResultSet(DatabaseController db, ResultSet resultSet) throws SQLException {
+	static Object fromResultSet(Config config, DatabaseController db, ResultSet resultSet) throws SQLException {
 		throw new IllegalArgumentException("Subclass did not declare an overridden fromResultSet() method.");
 	}
 

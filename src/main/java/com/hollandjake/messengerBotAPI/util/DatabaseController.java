@@ -48,8 +48,6 @@ public class DatabaseController {
 	 * &emsp; name {@link String} Human name<br>
 	 */
 	private CallableStatement GET_HUMAN;
-
-	//region Queries
 	/**
 	 * Saves a {@link Message} to the database
 	 * <p>
@@ -65,6 +63,8 @@ public class DatabaseController {
 	 * &emsp; name {@link String} Sender name<br>
 	 */
 	private CallableStatement SAVE_MESSAGE;
+
+	//region Queries
 	/**
 	 * Gets a {@link Message} from the database
 	 * <p>
@@ -153,10 +153,10 @@ public class DatabaseController {
 		this.thread = null;
 	}
 
-	public DatabaseController(API api) {
-		API.config.checkForProperties("db_url", "db_username", "db_password");
+	public DatabaseController(Config config, API api) {
+		config.checkForProperties("db_url", "db_username", "db_password");
 		this.api = api;
-		this.config = API.config;
+		this.config = config;
 		if (config.hasProperty("db_connection_timeout")) {
 			connectionTimeout = Duration.ofSeconds(Long.valueOf(config.getProperty("db_connection_timeout")));
 		} else {
@@ -198,7 +198,6 @@ public class DatabaseController {
 			}
 		}
 	}
-	//endregion
 
 	/**
 	 * Handles closing the connection when its finished with or failed
@@ -217,8 +216,7 @@ public class DatabaseController {
 			}
 		}
 	}
-
-	//region Connection
+	//endregion
 
 	/**
 	 * checks the connections status to make sure a connection is always active
@@ -238,6 +236,8 @@ public class DatabaseController {
 			}
 		}
 	}
+
+	//region Connection
 
 	private void createQueries() throws SQLException {
 
@@ -301,7 +301,21 @@ public class DatabaseController {
 			GET_THREAD.setString(1, threadName);
 			ResultSet resultSet = GET_THREAD.executeQuery();
 			if (resultSet.next()) {
-				return MessageThread.fromResultSet(resultSet);
+				return MessageThread.fromResultSet(config, resultSet);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Human getHuman(String name) {
+		checkConnection();
+		try {
+			GET_HUMAN.setString(1, name);
+			ResultSet resultSet = GET_HUMAN.executeQuery();
+			if (resultSet.next()) {
+				return Human.fromResultSet(config, resultSet);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -310,20 +324,6 @@ public class DatabaseController {
 	}
 
 	//endregion
-
-	public Human getHuman(String name) {
-		checkConnection();
-		try {
-			GET_HUMAN.setString(1, name);
-			ResultSet resultSet = GET_HUMAN.executeQuery();
-			if (resultSet.next()) {
-				return Human.fromResultSet(resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 
 	public Message saveMessage(Message message) {
 		checkConnection();
@@ -353,7 +353,7 @@ public class DatabaseController {
 					SAVE_MESSAGE_IMAGE.executeBatch();
 					SAVE_MESSAGE_IMAGE.clearBatch();
 				}
-				return Message.fromResultSet(this, resultSet);
+				return Message.fromResultSet(config, this, resultSet);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -368,7 +368,7 @@ public class DatabaseController {
 			GET_MESSAGE.setInt(2, messageId);
 			ResultSet resultSet = GET_MESSAGE.executeQuery();
 			if (resultSet.next()) {
-				return Message.fromResultSet(this, resultSet);
+				return Message.fromResultSet(config, this, resultSet);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -408,19 +408,23 @@ public class DatabaseController {
 			GET_MESSAGE_TEXT.setInt(2, messageId);
 			ResultSet resultSet = GET_MESSAGE_TEXT.executeQuery();
 			while (resultSet.next()) {
-				components.add(Text.fromResultSet(resultSet));
+				components.add(Text.fromResultSet(config, resultSet));
 			}
 
 			GET_MESSAGE_IMAGE.setInt(1, thread.getId());
 			GET_MESSAGE_IMAGE.setInt(2, messageId);
 			resultSet = GET_MESSAGE_IMAGE.executeQuery();
 			while (resultSet.next()) {
-				components.add(Image.fromResultSet(resultSet));
+				components.add(Image.fromResultSet(config, resultSet));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return components;
+	}
+
+	public Config getConfig() {
+		return config;
 	}
 
 	public Connection getConnection() {
@@ -434,7 +438,7 @@ public class DatabaseController {
 			GET_LATEST_MESSAGE.setInt(1, thread.getId());
 			ResultSet resultSet = GET_LATEST_MESSAGE.executeQuery();
 			if (resultSet.next()) {
-				return Message.fromResultSet(this, resultSet);
+				return Message.fromResultSet(config, this, resultSet);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
