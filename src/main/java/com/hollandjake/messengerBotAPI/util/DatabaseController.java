@@ -36,8 +36,6 @@ public class DatabaseController {
 	 * &emsp; thread_name {@link String} Threads name<br>
 	 */
 	private CallableStatement GET_THREAD;
-
-	//region Queries
 	/**
 	 * Gets a {@link Human} from the database
 	 * If one doesnt exist it creates it
@@ -50,6 +48,8 @@ public class DatabaseController {
 	 * &emsp; name {@link String} Human name<br>
 	 */
 	private CallableStatement GET_HUMAN;
+
+	//region Queries
 	/**
 	 * Saves a {@link Message} to the database
 	 * <p>
@@ -140,7 +140,6 @@ public class DatabaseController {
 	 * &emsp; text {@link String} The content<br>
 	 */
 	private PreparedStatement GET_MESSAGE_TEXT;
-
 	public DatabaseController(Config config) {
 		config.checkForProperties("db_url", "db_username", "db_password");
 		this.api = null;
@@ -154,10 +153,10 @@ public class DatabaseController {
 		this.thread = null;
 	}
 
-	public DatabaseController(API api, Config config) {
-		config.checkForProperties("db_url", "db_username", "db_password");
+	public DatabaseController(API api) {
+		API.config.checkForProperties("db_url", "db_username", "db_password");
 		this.api = api;
-		this.config = config;
+		this.config = API.config;
 		if (config.hasProperty("db_connection_timeout")) {
 			connectionTimeout = Duration.ofSeconds(Long.valueOf(config.getProperty("db_connection_timeout")));
 		} else {
@@ -166,7 +165,6 @@ public class DatabaseController {
 		openConnection();
 		this.thread = getThread(config.getProperty("thread_name"));
 	}
-	//endregion
 
 	/**
 	 * Creates a connection and handles any errors
@@ -200,8 +198,7 @@ public class DatabaseController {
 			}
 		}
 	}
-
-	//region Connection
+	//endregion
 
 	/**
 	 * Handles closing the connection when its finished with or failed
@@ -220,6 +217,8 @@ public class DatabaseController {
 			}
 		}
 	}
+
+	//region Connection
 
 	/**
 	 * checks the connections status to make sure a connection is always active
@@ -296,8 +295,6 @@ public class DatabaseController {
 		}
 	}
 
-	//endregion
-
 	public MessageThread getThread(String threadName) {
 		checkConnection();
 		try {
@@ -311,6 +308,8 @@ public class DatabaseController {
 		}
 		return null;
 	}
+
+	//endregion
 
 	public Human getHuman(String name) {
 		checkConnection();

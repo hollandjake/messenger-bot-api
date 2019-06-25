@@ -14,8 +14,4 @@ public interface CONSTANTS {
 	String COPY = Keys.chord(Keys.CONTROL, "c");
 	String PASTE = Keys.chord(Keys.CONTROL, "v");
 	//endregion
-
-	//region Image
-	int MAX_IMAGE_SIZE = 200000; //In Bytes
-	//endregion
 }

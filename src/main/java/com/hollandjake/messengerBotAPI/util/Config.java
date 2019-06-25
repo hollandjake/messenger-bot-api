@@ -32,6 +32,7 @@ public class Config extends Properties {
 			defaults = new Properties();
 			defaults.setProperty("message_timeout", 1000 * 60 + "");
 			defaults.setProperty("refresh_rate", 100 + "");
+			defaults.setProperty("image_size", 200000 + "");
 
 			inputStream = getClass().getClassLoader().getResourceAsStream(file);
 

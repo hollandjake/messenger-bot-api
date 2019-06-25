@@ -22,23 +22,25 @@ import java.sql.SQLException;
 import java.time.Duration;
 
 public abstract class API extends Thread {
+	public static Config config;
+
 	protected final LOG_LEVEL logLevel;
 	protected final MessageThread thread;
 	protected final Human me;
-	protected Config config;
 	protected WebController webController;
 	protected DatabaseController db;
 	private boolean running;
 	private int refreshRate;
 	private Duration messageTimeout;
+
 	public API(Config config) {
-		this.config = config;
+		API.config = config;
 		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));
 		refreshRate = (int) config.get("refresh_rate");
 		this.logLevel = (LOG_LEVEL) config.get("log_level");
 
 		//Login to the thread
-		this.db = new DatabaseController(this, config);
+		this.db = new DatabaseController(this);
 		this.webController = new WebController(config, this);
 		this.thread = webController.getThread();
 		this.me = webController.getMe();

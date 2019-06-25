@@ -1,5 +1,6 @@
 package com.hollandjake.messengerBotAPI.message;
 
+import com.hollandjake.messengerBotAPI.API;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -26,7 +27,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
-import static com.hollandjake.messengerBotAPI.util.CONSTANTS.MAX_IMAGE_SIZE;
 import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_IMAGE;
 
 public class Image extends MessageComponent implements Transferable {
@@ -77,20 +77,24 @@ public class Image extends MessageComponent implements Transferable {
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
-				int size = toByteArrayOutputStream(image).size();
+				double size = toByteArrayOutputStream(image).size();
 				//Scale image to fit in size
-				double scaleFactor = Math.min(1, MAX_IMAGE_SIZE / size);
-				int scaledWidth = (int) (image.getWidth() * scaleFactor);
-				int scaledHeight = (int) (image.getHeight() * scaleFactor);
+				double scaleFactor = Math.min(1, (int) API.config.get("image_size") / size);
 
-				if (scaledWidth > 0 && scaledHeight > 0) {
-					java.awt.Image scaledImage = image.getScaledInstance(scaledWidth, scaledHeight, java.awt.Image.SCALE_SMOOTH);
+				if (scaleFactor < 1 && scaleFactor > 0) {
+					int scaledWidth = (int) (image.getWidth() * scaleFactor);
+					scaleFactor = (double) scaledWidth / image.getWidth();
+					int scaledHeight = (int) (image.getHeight() * scaleFactor);
 
-					BufferedImage bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
-					Graphics2D g = bufferedImage.createGraphics();
-					g.drawImage(scaledImage, 0, 0, null);
-					g.dispose();
-					image = bufferedImage;
+					if (scaledWidth > 0 && scaledHeight > 0) {
+						java.awt.Image scaledImage = image.getScaledInstance(scaledWidth, scaledHeight, java.awt.Image.SCALE_SMOOTH);
+
+						BufferedImage bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_ARGB);
+						Graphics2D g = bufferedImage.createGraphics();
+						g.drawImage(scaledImage, 0, 0, null);
+						g.dispose();
+						image = bufferedImage;
+					}
 				}
 			}
 		} catch (IOException e) {
