@@ -77,19 +77,20 @@ public class Image extends MessageComponent implements Transferable {
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
-				double size = toByteArrayOutputStream(image).size();
-				//Scale image to fit in size
-				double scaleFactor = Math.min(1, (int) config.get("image_size") / size);
-
+				int bytesPerPixel = 3; // 3 is for the BufferedImage.TYPE_3BYTE_BGR
+				ByteArrayOutputStream out = toByteArrayOutputStream(image);
+				int size = out.size();
+				double pixelRatio = bytesPerPixel / (image.getColorModel().getPixelSize() / 8.0);
+				double scaleFactor = (int) config.get("image_size") / (size * pixelRatio);
 				if (scaleFactor < 1 && scaleFactor > 0) {
+					scaleFactor = Math.sqrt(scaleFactor);
 					int scaledWidth = (int) (image.getWidth() * scaleFactor);
 					scaleFactor = (double) scaledWidth / image.getWidth();
 					int scaledHeight = (int) (image.getHeight() * scaleFactor);
 
 					if (scaledWidth > 0 && scaledHeight > 0) {
 						java.awt.Image scaledImage = image.getScaledInstance(scaledWidth, scaledHeight, java.awt.Image.SCALE_SMOOTH);
-
-						BufferedImage bufferedImage = new BufferedImage(scaledWidth, scaledHeight, image.getType());
+						BufferedImage bufferedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_3BYTE_BGR);
 						Graphics2D g = bufferedImage.createGraphics();
 						g.drawImage(scaledImage, 0, 0, null);
 						g.dispose();
