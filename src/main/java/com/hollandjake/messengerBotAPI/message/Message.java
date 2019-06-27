@@ -75,7 +75,7 @@ public class Message extends DatabaseObject {
 		for (MessageComponent component : components) {
 			component.send(inputBox, wait);
 		}
-		inputBox.sendKeys(Keys.ENTER);
+		inputBox.sendKeys(" " + Keys.ENTER);
 		CLIPBOT.flush();
 	}
 
