@@ -361,7 +361,7 @@ public class DatabaseController {
 		return null;
 	}
 
-	private Message getMessage(int messageId) {
+	public Message getMessage(int messageId) {
 		checkConnection();
 		try {
 			GET_MESSAGE.setInt(1, thread.getId());
