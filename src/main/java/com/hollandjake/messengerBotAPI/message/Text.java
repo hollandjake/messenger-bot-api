@@ -52,8 +52,8 @@ public class Text extends MessageComponent {
 	}
 
 	@Override
-	public void send(WebElement inputBox, WebDriverWait wait) {
-		CLIPBOT.paste(new StringSelection(unescapeHtml(text) + " "), inputBox);
+	public void send(WebElement inputBox, WebDriverWait wait, MessageComponent nextComponent) {
+		CLIPBOT.paste(new StringSelection(unescapeHtml(text) + (nextComponent instanceof Image ? "" : " ")), inputBox);
 	}
 
 	public String getText() {

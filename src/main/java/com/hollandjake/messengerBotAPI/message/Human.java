@@ -45,7 +45,7 @@ public class Human extends DatabaseObject {
 	}
 
 	@Override
-	public void send(WebElement inputBox, WebDriverWait wait) {
+	public void send(WebElement inputBox, WebDriverWait wait, MessageComponent nextComponent) {
 		CLIPBOT.paste(new StringSelection(prettyPrint()), inputBox);
 		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(MENTIONS)));
 		inputBox.sendKeys(Keys.ENTER);

@@ -179,7 +179,7 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	@Override
-	public void send(WebElement inputBox, WebDriverWait wait) {
+	public void send(WebElement inputBox, WebDriverWait wait, MessageComponent nextComponent) {
 		CLIPBOT.paste(this, inputBox);
 	}
 

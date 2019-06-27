@@ -125,7 +125,7 @@ public class WebController {
 		WebElement inputBox = webDriver.findElement(By.xpath(INPUT_BOX));
 
 		//Send message
-		message.send(inputBox, wait);
+		message.send(inputBox, wait, null);
 	}
 
 	public Human getMe() {

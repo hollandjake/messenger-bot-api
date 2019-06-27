@@ -9,7 +9,7 @@ public abstract class MessageObject {
 
 	public abstract String prettyPrint();
 
-	public abstract void send(WebElement inputBox, WebDriverWait wait);
+	public abstract void send(WebElement inputBox, WebDriverWait wait, MessageComponent nextComponent);
 
 	@ForOverride
 	static Object extractFrom(Config config, WebElement messageElement) {
