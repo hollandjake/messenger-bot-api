@@ -70,14 +70,10 @@ public class Message extends DatabaseObject {
 		return "Message #" + id + " {" + date.prettyPrint() + "}, " + sender.prettyPrint() + " -> [" + components.stream().map(MessageComponent::prettyPrint).collect(Collectors.joining()) + "]";
 	}
 
-	public void send(WebElement inputBox, WebDriverWait wait, MessageComponent nextComponent) {
+	public void send(WebElement inputBox, WebDriverWait wait) {
 		CLIPBOT.cache();
-		for (int i = 0; i < components.size(); i++) {
-			MessageComponent component = components.get(i);
-			if (i < components.size() - 1) {
-				nextComponent = components.get(i + 1);
-			}
-			component.send(inputBox, wait, nextComponent);
+		for (MessageComponent component : components) {
+			component.send(inputBox, wait);
 		}
 		inputBox.sendKeys(Keys.ENTER);
 		CLIPBOT.flush();

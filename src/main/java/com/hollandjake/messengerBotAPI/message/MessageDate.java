@@ -88,8 +88,8 @@ public class MessageDate extends MessageObject {
 	}
 
 	@Override
-	public void send(WebElement inputBox, WebDriverWait wait, MessageComponent nextComponent) {
-		CLIPBOT.paste(new StringSelection("[" + prettyPrint() + "]" + (nextComponent instanceof Image ? "" : " ")), inputBox);
+	public void send(WebElement inputBox, WebDriverWait wait) {
+		CLIPBOT.paste(new StringSelection("[" + prettyPrint() + "]"), inputBox);
 	}
 
 	public LocalDateTime getDate() {
