@@ -64,9 +64,11 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	private static BufferedImage imageFromStream(Config config, InputStream inputStream) {
-
+		ImageInputStream imageInputStream = null;
 		BufferedImage image = null;
-		try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+
+		try {
+			imageInputStream = ImageIO.createImageInputStream(inputStream);
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
@@ -93,6 +95,13 @@ public class Image extends MessageComponent implements Transferable {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (imageInputStream != null) {
+					imageInputStream.close();
+				}
+			} catch (IOException ignore) {
+			}
 		}
 		return image;
 	}
