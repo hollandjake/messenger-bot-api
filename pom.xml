@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.hollandjake</groupId>
-    <artifactId>MessengerBotAPI</artifactId>
-    <version>0.10.2</version>
+    <artifactId>messenger-bot-api</artifactId>
+    <version>0.10.3</version>
     <build>
         <plugins>
             <plugin>

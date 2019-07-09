@@ -1,6 +1,6 @@
-package com.hollandjake.messengerBotAPI.message;
+package com.hollandjake.messenger_bot_api.message;
 
-import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messenger_bot_api.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
-import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_IMAGE;
+import static com.hollandjake.messenger_bot_api.util.CONSTANTS.CLIPBOT;
+import static com.hollandjake.messenger_bot_api.util.XPATHS.MESSAGE_IMAGE;
 
 public class Image extends MessageComponent implements Transferable {
 	private static final Pattern REGEX = Pattern.compile("url\\(\"(\\S+?)\"\\)");

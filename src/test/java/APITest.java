@@ -1,6 +1,6 @@
-import com.hollandjake.messengerBotAPI.API;
-import com.hollandjake.messengerBotAPI.message.Message;
-import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messenger_bot_api.API;
+import com.hollandjake.messenger_bot_api.message.Message;
+import com.hollandjake.messenger_bot_api.util.Config;
 
 import java.sql.Connection;
 

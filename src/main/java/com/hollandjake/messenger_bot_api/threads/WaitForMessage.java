@@ -1,9 +1,9 @@
-package com.hollandjake.messengerBotAPI.threads;
+package com.hollandjake.messenger_bot_api.threads;
 
-import com.hollandjake.messengerBotAPI.API;
-import com.hollandjake.messengerBotAPI.message.Message;
-import com.hollandjake.messengerBotAPI.util.LOG_LEVEL;
-import com.hollandjake.messengerBotAPI.util.WebController;
+import com.hollandjake.messenger_bot_api.API;
+import com.hollandjake.messenger_bot_api.message.Message;
+import com.hollandjake.messenger_bot_api.util.LOG_LEVEL;
+import com.hollandjake.messenger_bot_api.util.WebController;
 
 import java.util.List;
 

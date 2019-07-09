@@ -1,14 +1,14 @@
-package com.hollandjake.messengerBotAPI;
+package com.hollandjake.messenger_bot_api;
 
 import com.google.errorprone.annotations.ForOverride;
-import com.hollandjake.messengerBotAPI.message.Human;
-import com.hollandjake.messengerBotAPI.message.Message;
-import com.hollandjake.messengerBotAPI.message.MessageThread;
-import com.hollandjake.messengerBotAPI.threads.WaitForMessage;
-import com.hollandjake.messengerBotAPI.util.Config;
-import com.hollandjake.messengerBotAPI.util.DatabaseController;
-import com.hollandjake.messengerBotAPI.util.LOG_LEVEL;
-import com.hollandjake.messengerBotAPI.util.WebController;
+import com.hollandjake.messenger_bot_api.message.Human;
+import com.hollandjake.messenger_bot_api.message.Message;
+import com.hollandjake.messenger_bot_api.message.MessageThread;
+import com.hollandjake.messenger_bot_api.threads.WaitForMessage;
+import com.hollandjake.messenger_bot_api.util.Config;
+import com.hollandjake.messenger_bot_api.util.DatabaseController;
+import com.hollandjake.messenger_bot_api.util.LOG_LEVEL;
+import com.hollandjake.messenger_bot_api.util.WebController;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;

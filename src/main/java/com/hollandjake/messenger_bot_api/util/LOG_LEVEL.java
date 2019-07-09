@@ -1,4 +1,4 @@
-package com.hollandjake.messengerBotAPI.util;
+package com.hollandjake.messenger_bot_api.util;
 
 public enum LOG_LEVEL {
 	NOTHING, DEBUG, DEBUG_MESSAGES, EVERYTHING;

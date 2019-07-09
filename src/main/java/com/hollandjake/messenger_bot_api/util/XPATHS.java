@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package com.hollandjake.messengerBotAPI.util;
+package com.hollandjake.messenger_bot_api.util;
 
 public interface XPATHS {
 	//Login

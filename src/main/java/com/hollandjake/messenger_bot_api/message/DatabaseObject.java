@@ -1,8 +1,8 @@
-package com.hollandjake.messengerBotAPI.message;
+package com.hollandjake.messenger_bot_api.message;
 
 import com.google.errorprone.annotations.ForOverride;
-import com.hollandjake.messengerBotAPI.util.Config;
-import com.hollandjake.messengerBotAPI.util.DatabaseController;
+import com.hollandjake.messenger_bot_api.util.Config;
+import com.hollandjake.messenger_bot_api.util.DatabaseController;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

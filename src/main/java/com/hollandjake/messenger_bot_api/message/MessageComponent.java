@@ -1,7 +1,7 @@
-package com.hollandjake.messengerBotAPI.message;
+package com.hollandjake.messenger_bot_api.message;
 
 import com.google.errorprone.annotations.ForOverride;
-import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messenger_bot_api.util.Config;
 import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;

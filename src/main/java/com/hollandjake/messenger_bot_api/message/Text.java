@@ -1,6 +1,6 @@
-package com.hollandjake.messengerBotAPI.message;
+package com.hollandjake.messenger_bot_api.message;
 
-import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messenger_bot_api.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
-import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_TEXT;
+import static com.hollandjake.messenger_bot_api.util.CONSTANTS.CLIPBOT;
+import static com.hollandjake.messenger_bot_api.util.XPATHS.MESSAGE_TEXT;
 import static org.apache.commons.lang.StringEscapeUtils.unescapeHtml;
 
 

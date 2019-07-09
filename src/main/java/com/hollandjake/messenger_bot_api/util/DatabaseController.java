@@ -1,7 +1,7 @@
-package com.hollandjake.messengerBotAPI.util;
+package com.hollandjake.messenger_bot_api.util;
 
-import com.hollandjake.messengerBotAPI.API;
-import com.hollandjake.messengerBotAPI.message.*;
+import com.hollandjake.messenger_bot_api.API;
+import com.hollandjake.messenger_bot_api.message.*;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

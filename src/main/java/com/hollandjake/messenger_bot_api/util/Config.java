@@ -1,4 +1,4 @@
-package com.hollandjake.messengerBotAPI.util;
+package com.hollandjake.messenger_bot_api.util;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;

@@ -1,9 +1,9 @@
-package com.hollandjake.messengerBotAPI.util;
+package com.hollandjake.messenger_bot_api.util;
 
-import com.hollandjake.messengerBotAPI.API;
-import com.hollandjake.messengerBotAPI.message.Human;
-import com.hollandjake.messengerBotAPI.message.Message;
-import com.hollandjake.messengerBotAPI.message.MessageThread;
+import com.hollandjake.messenger_bot_api.API;
+import com.hollandjake.messenger_bot_api.message.Human;
+import com.hollandjake.messenger_bot_api.message.Message;
+import com.hollandjake.messenger_bot_api.message.MessageThread;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -14,7 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hollandjake.messengerBotAPI.util.XPATHS.*;
+import static com.hollandjake.messenger_bot_api.util.XPATHS.*;
 
 public class WebController {
 	private final API api;

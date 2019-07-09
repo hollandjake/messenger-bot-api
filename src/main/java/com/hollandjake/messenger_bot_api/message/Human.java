@@ -1,6 +1,6 @@
-package com.hollandjake.messengerBotAPI.message;
+package com.hollandjake.messenger_bot_api.message;
 
-import com.hollandjake.messengerBotAPI.util.Config;
+import com.hollandjake.messenger_bot_api.util.Config;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -11,9 +11,9 @@ import java.awt.datatransfer.StringSelection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static com.hollandjake.messengerBotAPI.util.CONSTANTS.CLIPBOT;
-import static com.hollandjake.messengerBotAPI.util.XPATHS.MENTIONS;
-import static com.hollandjake.messengerBotAPI.util.XPATHS.MESSAGE_SENDER;
+import static com.hollandjake.messenger_bot_api.util.CONSTANTS.CLIPBOT;
+import static com.hollandjake.messenger_bot_api.util.XPATHS.MENTIONS;
+import static com.hollandjake.messenger_bot_api.util.XPATHS.MESSAGE_SENDER;
 
 public class Human extends DatabaseObject {
 	private final String name;
