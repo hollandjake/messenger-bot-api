@@ -67,7 +67,7 @@ public class Message extends DatabaseObject {
 	}
 
 	public String prettyPrint() {
-		return "Message #" + id + " {" + date.prettyPrint() + "}, " + sender.prettyPrint() + " -> [" + components.stream().map(MessageComponent::prettyPrint).collect(Collectors.joining()) + "]";
+		return "Message #" + getId() + " {" + date.prettyPrint() + "}, " + sender.prettyPrint() + " -> [" + components.stream().map(MessageComponent::prettyPrint).collect(Collectors.joining()) + "]";
 	}
 
 	public void send(WebElement inputBox, WebDriverWait wait) {

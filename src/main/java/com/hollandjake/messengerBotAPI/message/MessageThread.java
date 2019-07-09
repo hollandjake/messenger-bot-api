@@ -9,7 +9,7 @@ public class MessageThread {
 	private final Integer id;
 	private final String threadName;
 
-	private MessageThread(int id, String threadName) {
+	private MessageThread(Integer id, String threadName) {
 		this.id = id;
 		this.threadName = threadName;
 	}

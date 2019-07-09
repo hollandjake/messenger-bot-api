@@ -31,6 +31,10 @@ public class MessageDate extends MessageObject {
 		this.date = date;
 	}
 
+	public static MessageDate fromLocalDateTime(LocalDateTime date) {
+		return new MessageDate(date);
+	}
+
 	public static MessageDate now() {
 		return new MessageDate(LocalDateTime.now());
 	}

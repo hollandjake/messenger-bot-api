@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class DatabaseObject extends MessageObject {
-	final Integer id;
+	private final Integer id;
 
 	DatabaseObject(Integer id) {
 		this.id = id;

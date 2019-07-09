@@ -40,12 +40,7 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	public InputStream toStream() {
-		try {
-			return new ByteArrayInputStream(toByteArrayOutputStream(image).toByteArray());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return toStream(image);
 	}
 
 	private static BufferedImage imageFromUrl(Config config, String url) throws SSLHandshakeException {
@@ -69,11 +64,9 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	private static BufferedImage imageFromStream(Config config, InputStream inputStream) {
-		ImageInputStream imageInputStream = null;
-		BufferedImage image = null;
 
-		try {
-			imageInputStream = ImageIO.createImageInputStream(inputStream);
+		BufferedImage image = null;
+		try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
 			image = ImageIO.read(imageInputStream);
 
 			if (image != null) {
@@ -100,13 +93,6 @@ public class Image extends MessageComponent implements Transferable {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				if (imageInputStream != null) {
-					imageInputStream.close();
-				}
-			} catch (IOException ignore) {
-			}
 		}
 		return image;
 	}
@@ -118,10 +104,27 @@ public class Image extends MessageComponent implements Transferable {
 		return out;
 	}
 
+	public static Image fromBufferedImage(Config config, BufferedImage image) {
+		return fromInputStream(config, toStream(image));
+	}
+
+	public static Image fromInputStream(Config config, InputStream stream) {
+		return new Image(null, imageFromStream(config, stream));
+	}
+
+	public static InputStream toStream(BufferedImage image) {
+		try {
+			return new ByteArrayInputStream(toByteArrayOutputStream(image).toByteArray());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static MessageComponent fromUrl(Config config, String url) {
 		try {
 			BufferedImage image = imageFromUrl(config, url);
-			return new Image(0, image);
+			return new Image(null, image);
 		} catch (SSLHandshakeException e) {
 			return Text.fromString(url);
 		}
@@ -175,7 +178,7 @@ public class Image extends MessageComponent implements Transferable {
 
 	@Override
 	public String prettyPrint() {
-		return "(\"" + id + "\")";
+		return "(\"" + getId() + "\")";
 	}
 
 	@Override

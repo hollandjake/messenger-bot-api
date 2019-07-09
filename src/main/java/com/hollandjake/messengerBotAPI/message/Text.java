@@ -19,7 +19,7 @@ import static org.apache.commons.lang.StringEscapeUtils.unescapeHtml;
 public class Text extends MessageComponent {
 	private final String text;
 
-	private Text(int id, String text) {
+	private Text(Integer id, String text) {
 		super(id);
 		this.text = text;
 	}
@@ -34,7 +34,7 @@ public class Text extends MessageComponent {
 	}
 
 	public static Text fromString(String text) {
-		return new Text(0, text);
+		return new Text(null, text);
 	}
 
 	public static ArrayList<MessageComponent> extractFrom(Config config, WebElement messageElement) {
