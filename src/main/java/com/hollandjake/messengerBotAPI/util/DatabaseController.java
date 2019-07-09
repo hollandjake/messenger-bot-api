@@ -140,17 +140,9 @@ public class DatabaseController {
 	 * &emsp; text {@link String} The content<br>
 	 */
 	private PreparedStatement GET_MESSAGE_TEXT;
+
 	public DatabaseController(Config config) {
-		config.checkForProperties("db_url", "db_username", "db_password");
-		this.api = null;
-		this.config = config;
-		if (config.hasProperty("db_connection_timeout")) {
-			connectionTimeout = Duration.ofSeconds(Long.valueOf(config.getProperty("db_connection_timeout")));
-		} else {
-			connectionTimeout = Duration.ofSeconds(60);
-		}
-		openConnection();
-		this.thread = null;
+		this(config, null);
 	}
 
 	public DatabaseController(Config config, API api) {
