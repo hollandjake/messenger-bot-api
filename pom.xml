@@ -6,7 +6,7 @@
 
     <groupId>com.hollandjake</groupId>
     <artifactId>messenger-bot-api</artifactId>
-    <version>0.10.4</version>
+    <version>0.10.5</version>
     <build>
         <plugins>
             <plugin>

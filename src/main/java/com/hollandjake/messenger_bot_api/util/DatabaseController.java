@@ -317,7 +317,7 @@ public class DatabaseController {
 
 	//endregion
 
-	public Message saveMessage(Message message) {
+	private Message saveMessage(Message message, boolean noReturn) {
 		checkConnection();
 		try {
 			SAVE_MESSAGE.setInt(1, thread.getId());
@@ -345,12 +345,23 @@ public class DatabaseController {
 					SAVE_MESSAGE_IMAGE.executeBatch();
 					SAVE_MESSAGE_IMAGE.clearBatch();
 				}
-				return Message.fromResultSet(config, this, resultSet);
+
+				if (!noReturn) {
+					return Message.fromResultSet(config, this, resultSet);
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public Message saveMessage(Message message) {
+		return saveMessage(message, false);
+	}
+
+	public void saveMessageNoReturn(Message message) {
+		saveMessage(message, true);
 	}
 
 	public Message getMessage(int messageId) {
