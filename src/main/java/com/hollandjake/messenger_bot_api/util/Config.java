@@ -18,12 +18,7 @@ public class Config extends Properties {
 	}
 
 	public Config(String file) {
-		if (file != null) {
-			System.out.println("User provided custom configuration file : " + file);
-		} else {
-			file = DEFAULT_FILE;
-		}
-		loadFile(file);
+		loadFile(file != null ? file : DEFAULT_FILE);
 	}
 
 	private void loadFile(String file) {
@@ -38,11 +33,12 @@ public class Config extends Properties {
 
 			if (inputStream != null) {
 				load(inputStream);
+				System.out.println("Loaded configuration file : " + file);
 			} else {
 				throw new FileNotFoundException("'" + file + "' is not a property file");
 			}
 		} catch (Exception e) {
-			System.out.println("Exception: " + e);
+			e.printStackTrace();
 		} finally {
 			if (inputStream != null) {
 				try {
@@ -61,7 +57,7 @@ public class Config extends Properties {
 	public void checkForProperties(String... properties) {
 		StringBuilder missingProperties = new StringBuilder();
 		for (String property : properties) {
-			if (!containsKey(property)) {
+			if (!hasProperty(property)) {
 				missingProperties.append("'").append(property).append("',");
 			}
 		}

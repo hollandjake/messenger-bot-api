@@ -152,7 +152,7 @@ public class DatabaseController {
 		if (config.hasProperty("db_connection_timeout")) {
 			connectionTimeout = Duration.ofSeconds(Long.valueOf(config.getProperty("db_connection_timeout")));
 		} else {
-			connectionTimeout = api.getMessageTimeout();
+			connectionTimeout = (api != null ? api.getMessageTimeout() : Duration.ofMinutes(1));
 		}
 		openConnection();
 		this.thread = getThread(config.getProperty("thread_name"));
