@@ -118,7 +118,12 @@ public class Image extends MessageComponent implements Transferable {
 	}
 
 	public static Image fromInputStream(Config config, InputStream stream) {
-		return new Image(null, imageFromStream(config, stream));
+		BufferedImage image = imageFromStream(config, stream);
+		if (image != null) {
+			return new Image(null, image);
+		} else {
+			return null;
+		}
 	}
 
 	public static InputStream toStream(BufferedImage image) {
