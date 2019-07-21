@@ -6,7 +6,7 @@
 
     <groupId>com.hollandjake</groupId>
     <artifactId>messenger-bot-api</artifactId>
-    <version>0.10.6</version>
+    <version>0.11.0</version>
     <build>
         <plugins>
             <plugin>
@@ -19,7 +19,16 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/Resources</directory>
+            </resource>
+            <resource>
+                <directory>src/test/Resources</directory>
+            </resource>
+        </resources>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
@@ -34,6 +43,12 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-chrome-driver</artifactId>
+            <version>3.141.59</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-firefox-driver</artifactId>
             <version>3.141.59</version>
         </dependency>
 

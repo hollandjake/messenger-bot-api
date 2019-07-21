@@ -7,6 +7,10 @@ import com.hollandjake.messenger_bot_api.message.MessageThread;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -35,22 +39,37 @@ public class WebController {
 		this.thread = db.getThread();
 
 		//Setup Driver
-		if (config.hasProperty("chromedriver")) {
+		if (config.hasProperty("geckodriver")) {
 			if (api.debugging()) {
-				System.out.println("User provided chromedriver");
+				System.out.println("User provided geckodriver");
 			}
-			System.setProperty("webdriver.chrome.driver", config.getProperty("chromedriver"));
-		}
+			System.setProperty("webdriver.gecko.driver", config.getProperty("geckodriver"));
+			FirefoxOptions options = new FirefoxOptions();
+			FirefoxProfile profile = new FirefoxProfile();
+			profile.setPreference("app.update.enabled", false);
+			profile.setPreference("media.volume_scale", "0.0");
+			profile.setPreference("intl.accept_languages", "de");
+			options.setLogLevel(FirefoxDriverLogLevel.FATAL);
 
-		ChromeOptions chromeOptions = new ChromeOptions();
-		chromeOptions.addArguments(
-				"--log-level=3",
-				"--silent",
-				"--lang=en-GB",
-				"--mute-audio",
-				"--disable-infobars",
-				"--disable-notifications");
-		this.webDriver = new ChromeDriver(chromeOptions);
+			options.setProfile(profile);
+			this.webDriver = new FirefoxDriver(options);
+		} else {
+			if (config.hasProperty("chromedriver")) {
+				if (api.debugging()) {
+					System.out.println("User provided chromedriver");
+				}
+				System.setProperty("webdriver.chrome.driver", config.getProperty("chromedriver"));
+			}
+			ChromeOptions chromeOptions = new ChromeOptions();
+			chromeOptions.addArguments(
+					"--log-level=3",
+					"--silent",
+					"--lang=en-GB",
+					"--mute-audio",
+					"--disable-infobars",
+					"--disable-notifications");
+			this.webDriver = new ChromeDriver(chromeOptions);
+		}
 		this.wait = new WebDriverWait(this.webDriver, 30L, api.getRefreshRate());
 		this.messageWait = new WebDriverWait(this.webDriver, api.getMessageTimeout().getSeconds(), api.getRefreshRate());
 		Runtime.getRuntime().addShutdownHook(new Thread(this::quit));
@@ -98,7 +117,9 @@ public class WebController {
 							.toLowerCase());
 				}
 			} catch (WebDriverException e) {
-				e.printStackTrace();
+				if (!(e instanceof NoSuchSessionException)) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return null;
