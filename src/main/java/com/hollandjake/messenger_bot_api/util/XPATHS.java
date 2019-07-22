@@ -11,7 +11,7 @@ public interface XPATHS {
 	String LOGIN_PASS = "//input[@id='pass']";
 	String LOGIN = "//button[@id='loginbutton']";
 
-	String SETTING_COG = "//a[contains(@class,'_6ymd')]";
+	String SETTING_COG = "//a[@aria-label='Settings, help and more']";
 	String SETTINGS_DROPDOWN = "//span[text()='Settings']";
 	String SETTINGS_DONE = "//button[text()='Done']";
 	String MY_REAL_NAME = "//div[@class='_6ct9']";
