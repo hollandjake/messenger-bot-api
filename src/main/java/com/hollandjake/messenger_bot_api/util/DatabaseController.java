@@ -41,13 +41,25 @@ public class DatabaseController {
 	 * If one doesnt exist it creates it
 	 * <p>
 	 * Params: <br>
-	 * &emsp; humanName {@link Integer} The Humans name<br>
+	 * &emsp; humanName {@link String} The Humans name<br>
 	 * <p>
 	 * Returns: <br>
 	 * &emsp; human_id {@link Integer} Human id<br>
 	 * &emsp; name {@link String} Human name<br>
 	 */
 	private CallableStatement GET_HUMAN;
+	/**
+	 * Gets a {@link Human} from the database
+	 * If one doesnt exist it creates it
+	 * <p>
+	 * Params: <br>
+	 * &emsp; humanName {@link String} The Humans name<br>
+	 * <p>
+	 * Returns: <br>
+	 * &emsp; human_id {@link Integer} Human id<br>
+	 * &emsp; name {@link String} Human name<br>
+	 */
+	private CallableStatement GET_HUMAN_WITH_NAME_LIKE;
 	/**
 	 * Saves a {@link Message} to the database
 	 * <p>
@@ -239,6 +251,7 @@ public class DatabaseController {
 
 		//region Human
 		GET_HUMAN = connection.prepareCall("{CALL GetHuman(?)}");
+		GET_HUMAN_WITH_NAME_LIKE = connection.prepareCall("{CALL GetHumanWithNameLike(?)}");
 		//endregion
 
 		//region Message
@@ -306,6 +319,34 @@ public class DatabaseController {
 		try {
 			GET_HUMAN.setString(1, name);
 			ResultSet resultSet = GET_HUMAN.executeQuery();
+			if (resultSet.next()) {
+				return Human.fromResultSet(config, resultSet);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Integer getHumanIdWithNameLike(String name) {
+		checkConnection();
+		try {
+			GET_HUMAN_WITH_NAME_LIKE.setString(1, name);
+			ResultSet resultSet = GET_HUMAN_WITH_NAME_LIKE.executeQuery();
+			if (resultSet.next()) {
+				return resultSet.getInt("human_id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Human getHumanWithNameLike(String name) {
+		checkConnection();
+		try {
+			GET_HUMAN_WITH_NAME_LIKE.setString(1, name);
+			ResultSet resultSet = GET_HUMAN_WITH_NAME_LIKE.executeQuery();
 			if (resultSet.next()) {
 				return Human.fromResultSet(config, resultSet);
 			}
