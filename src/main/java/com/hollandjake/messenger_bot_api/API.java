@@ -94,7 +94,8 @@ public abstract class API extends Thread {
 	}
 
 	public boolean debugging() {
-		return logLevel.greaterThanEqTo(LOG_LEVEL.DEBUG);
+		return logLevel.greaterThanEqTo(LOG_LEVEL.DEBUG) || (java.lang.management.ManagementFactory.getRuntimeMXBean().
+				getInputArguments().toString().indexOf("-agentlib:jdwp") > 0);
 	}
 
 	public Config getConfig() {
