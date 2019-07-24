@@ -3,7 +3,6 @@ package com.hollandjake.messenger_bot_api.util;
 import com.hollandjake.messenger_bot_api.API;
 import com.hollandjake.messenger_bot_api.message.Human;
 import com.hollandjake.messenger_bot_api.message.Message;
-import com.hollandjake.messenger_bot_api.message.MessageThread;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -15,6 +14,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,6 @@ public class WebController {
 	private final WebDriverWait wait;
 	private final WebDriverWait messageWait;
 	private final Config config;
-	private final MessageThread thread;
 	private final DatabaseController db;
 	private int numMessages;
 	public WebController(Config config, API api) {
@@ -36,7 +36,6 @@ public class WebController {
 		this.api = api;
 		this.config = config;
 		this.db = api.getDb();
-		this.thread = db.getThread();
 
 		//Setup Driver
 		if (config.hasProperty("geckodriver")) {
@@ -81,7 +80,7 @@ public class WebController {
 	}
 
 	public void openThread(String email, String password) {
-		webDriver.get("https://www.messenger.com/t/" + thread.getThreadName());
+		webDriver.get("https://www.messenger.com/t/" + db.getThread().getThreadName());
 		List<WebElement> emailFields = webDriver.findElements(By.xpath(XPATHS.LOGIN_EMAIL));
 		for (WebElement emailField : emailFields) {
 			wait.until(ExpectedConditions.elementToBeClickable(emailField));
@@ -99,12 +98,16 @@ public class WebController {
 				messageWait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(OTHERS_MESSAGES), numMessages));
 				int newCount = getNumberOfMessages();
 				List<Message> messages = new ArrayList<>();
+				webDriver.findElement(By.xpath(INPUT_BOX)).click();
 				for (int i = newCount - numMessages; i > 0; i--) {
 					WebElement messageElement = webDriver.findElement(By.xpath(LAST_MINUS_N(OTHERS_MESSAGES, i - 1)));
-					webDriver.findElement(By.xpath(INPUT_BOX)).click();
-					Message message = Message.fromElement(db, messageElement);
-					if (message != null) {
-						messages.add(message);
+					try {
+						Message message = Message.fromElement(db, messageElement);
+						if (message != null) {
+							messages.add(message);
+						}
+					} catch (SQLException | IOException e) {
+						e.printStackTrace();
 					}
 				}
 				numMessages = newCount;
@@ -149,7 +152,7 @@ public class WebController {
 		message.send(inputBox, wait);
 	}
 
-	public Human getMe() {
+	public Human getMe() throws SQLException {
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(SETTING_COG))).click();
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath(SETTINGS_DROPDOWN))).click();
 		String myName = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(MY_REAL_NAME))).getText();
@@ -159,9 +162,5 @@ public class WebController {
 
 	public int getNumberOfMessages() {
 		return webDriver.findElements(By.xpath(OTHERS_MESSAGES)).size();
-	}
-
-	public MessageThread getThread() {
-		return thread;
 	}
 }

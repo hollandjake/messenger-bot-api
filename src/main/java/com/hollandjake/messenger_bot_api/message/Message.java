@@ -6,6 +6,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class Message extends DatabaseObject {
 				components);
 	}
 
-	public static Message fromElement(DatabaseController db, WebElement messageElement) {
+	public static Message fromElement(DatabaseController db, WebElement messageElement) throws IOException, SQLException {
 		Config config = db.getConfig();
 		MessageDate date = MessageDate.extractFrom(config, messageElement);
 		if (date != null) {

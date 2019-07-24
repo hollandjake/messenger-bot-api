@@ -153,11 +153,11 @@ public class DatabaseController {
 	 */
 	private PreparedStatement GET_MESSAGE_TEXT;
 
-	public DatabaseController(Config config) {
+	public DatabaseController(Config config) throws SQLException {
 		this(config, null);
 	}
 
-	public DatabaseController(Config config, API api) {
+	public DatabaseController(Config config, API api) throws SQLException {
 		config.checkForProperties("db_url", "db_username", "db_password");
 		this.api = api;
 		this.config = config;
@@ -300,169 +300,133 @@ public class DatabaseController {
 		}
 	}
 
-	public MessageThread getThread(String threadName) {
+	public MessageThread getThread(String threadName) throws SQLException {
 		checkConnection();
-		try {
-			GET_THREAD.setString(1, threadName);
-			ResultSet resultSet = GET_THREAD.executeQuery();
-			if (resultSet.next()) {
-				return MessageThread.fromResultSet(config, resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_THREAD.setString(1, threadName);
+		ResultSet resultSet = GET_THREAD.executeQuery();
+		if (resultSet.next()) {
+			return MessageThread.fromResultSet(config, resultSet);
 		}
 		return null;
 	}
 
-	public Human getHuman(String name) {
+	public Human getHuman(String name) throws SQLException {
 		checkConnection();
-		try {
-			GET_HUMAN.setString(1, name);
-			ResultSet resultSet = GET_HUMAN.executeQuery();
-			if (resultSet.next()) {
-				return Human.fromResultSet(config, resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_HUMAN.setString(1, name);
+		ResultSet resultSet = GET_HUMAN.executeQuery();
+		if (resultSet.next()) {
+			return Human.fromResultSet(config, resultSet);
 		}
 		return null;
 	}
 
-	public Integer getHumanIdWithNameLike(String name) {
+	public Integer getHumanIdWithNameLike(String name) throws SQLException {
 		checkConnection();
-		try {
-			GET_HUMAN_WITH_NAME_LIKE.setString(1, name);
-			ResultSet resultSet = GET_HUMAN_WITH_NAME_LIKE.executeQuery();
-			if (resultSet.next()) {
-				return resultSet.getInt("human_id");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_HUMAN_WITH_NAME_LIKE.setString(1, name);
+		ResultSet resultSet = GET_HUMAN_WITH_NAME_LIKE.executeQuery();
+		if (resultSet.next()) {
+			return resultSet.getInt("human_id");
 		}
 		return null;
 	}
 
-	public Human getHumanWithNameLike(String name) {
+	public Human getHumanWithNameLike(String name) throws SQLException {
 		checkConnection();
-		try {
-			GET_HUMAN_WITH_NAME_LIKE.setString(1, name);
-			ResultSet resultSet = GET_HUMAN_WITH_NAME_LIKE.executeQuery();
-			if (resultSet.next()) {
-				return Human.fromResultSet(config, resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_HUMAN_WITH_NAME_LIKE.setString(1, name);
+		ResultSet resultSet = GET_HUMAN_WITH_NAME_LIKE.executeQuery();
+		if (resultSet.next()) {
+			return Human.fromResultSet(config, resultSet);
 		}
 		return null;
 	}
 
 	//endregion
 
-	private Message saveMessage(Message message, boolean noReturn) {
+	private Message saveMessage(Message message, boolean noReturn) throws SQLException, IOException {
 		checkConnection();
-		try {
-			SAVE_MESSAGE.setInt(1, thread.getId());
-			SAVE_MESSAGE.setString(2, message.getSender().getName());
-			SAVE_MESSAGE.setTimestamp(3, Timestamp.valueOf(message.getDate().getDate()));
-			ResultSet resultSet = SAVE_MESSAGE.executeQuery();
-			if (resultSet.next()) {
-				int textCount = 0;
-				int imageCount = 0;
-				int messageId = resultSet.getInt("message_id");
-				for (MessageComponent component : message.getComponents()) {
-					if (component instanceof Text) {
-						saveText(messageId, (Text) component);
-						textCount++;
-					} else if (component instanceof Image) {
-						saveImage(messageId, (Image) component);
-						imageCount++;
-					}
-				}
-				if (textCount > 0) {
-					SAVE_MESSAGE_TEXT.executeBatch();
-					SAVE_MESSAGE_TEXT.clearBatch();
-				}
-				if (imageCount > 0) {
-					SAVE_MESSAGE_IMAGE.executeBatch();
-					SAVE_MESSAGE_IMAGE.clearBatch();
-				}
-
-				if (!noReturn) {
-					return Message.fromResultSet(config, this, resultSet);
+		SAVE_MESSAGE.setInt(1, message.getThread().getId());
+		SAVE_MESSAGE.setString(2, message.getSender().getName());
+		SAVE_MESSAGE.setTimestamp(3, Timestamp.valueOf(message.getDate().getDate()));
+		ResultSet resultSet = SAVE_MESSAGE.executeQuery();
+		if (resultSet.next()) {
+			int textCount = 0;
+			int imageCount = 0;
+			int messageId = resultSet.getInt("message_id");
+			for (MessageComponent component : message.getComponents()) {
+				if (component instanceof Text) {
+					saveText(messageId, (Text) component);
+					textCount++;
+				} else if (component instanceof Image) {
+					saveImage(messageId, (Image) component);
+					imageCount++;
 				}
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+			if (textCount > 0) {
+				SAVE_MESSAGE_TEXT.executeBatch();
+				SAVE_MESSAGE_TEXT.clearBatch();
+			}
+			if (imageCount > 0) {
+				SAVE_MESSAGE_IMAGE.executeBatch();
+				SAVE_MESSAGE_IMAGE.clearBatch();
+			}
+
+			if (!noReturn) {
+				return Message.fromResultSet(config, this, resultSet);
+			}
 		}
 		return null;
 	}
 
-	public Message saveMessage(Message message) {
+	public Message saveMessage(Message message) throws SQLException, IOException {
 		return saveMessage(message, false);
 	}
 
-	public void saveMessageNoReturn(Message message) {
+	public void saveMessageNoReturn(Message message) throws SQLException, IOException {
 		saveMessage(message, true);
 	}
 
-	public Message getMessage(int messageId) {
+	public Message getMessage(int messageId) throws SQLException {
 		checkConnection();
-		try {
-			GET_MESSAGE.setInt(1, thread.getId());
-			GET_MESSAGE.setInt(2, messageId);
-			ResultSet resultSet = GET_MESSAGE.executeQuery();
-			if (resultSet.next()) {
-				return Message.fromResultSet(config, this, resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_MESSAGE.setInt(1, thread.getId());
+		GET_MESSAGE.setInt(2, messageId);
+		ResultSet resultSet = GET_MESSAGE.executeQuery();
+		if (resultSet.next()) {
+			return Message.fromResultSet(config, this, resultSet);
 		}
 		return null;
 	}
 
-	private void saveImage(int messageId, Image image) {
-		try {
-			SAVE_MESSAGE_IMAGE.setInt(1, thread.getId());
-			SAVE_MESSAGE_IMAGE.setInt(2, messageId);
-			InputStream stream = image.toStream();
-			SAVE_MESSAGE_IMAGE.setBinaryStream(3, stream, stream.available());
-			SAVE_MESSAGE_IMAGE.addBatch();
-		} catch (SQLException | IOException e) {
-			e.printStackTrace();
-		}
+	private void saveImage(int messageId, Image image) throws SQLException, IOException {
+		SAVE_MESSAGE_IMAGE.setInt(1, thread.getId());
+		SAVE_MESSAGE_IMAGE.setInt(2, messageId);
+		InputStream stream = image.toStream();
+		SAVE_MESSAGE_IMAGE.setBinaryStream(3, stream, stream.available());
+		SAVE_MESSAGE_IMAGE.addBatch();
 	}
 
-	private void saveText(int messageId, Text text) {
+	private void saveText(int messageId, Text text) throws SQLException {
 		checkConnection();
-		try {
-			SAVE_MESSAGE_TEXT.setInt(1, thread.getId());
-			SAVE_MESSAGE_TEXT.setInt(2, messageId);
-			SAVE_MESSAGE_TEXT.setString(3, text.getText());
-			SAVE_MESSAGE_TEXT.addBatch();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		SAVE_MESSAGE_TEXT.setInt(1, thread.getId());
+		SAVE_MESSAGE_TEXT.setInt(2, messageId);
+		SAVE_MESSAGE_TEXT.setString(3, text.getText());
+		SAVE_MESSAGE_TEXT.addBatch();
 	}
 
-	public List<MessageComponent> getMessageComponents(int messageId) {
+	public List<MessageComponent> getMessageComponents(int messageId) throws SQLException {
 		checkConnection();
 		List<MessageComponent> components = new ArrayList<>();
-		try {
-			GET_MESSAGE_TEXT.setInt(1, thread.getId());
-			GET_MESSAGE_TEXT.setInt(2, messageId);
-			ResultSet resultSet = GET_MESSAGE_TEXT.executeQuery();
-			while (resultSet.next()) {
-				components.add(Text.fromResultSet(config, resultSet));
-			}
+		GET_MESSAGE_TEXT.setInt(1, thread.getId());
+		GET_MESSAGE_TEXT.setInt(2, messageId);
+		ResultSet resultSet = GET_MESSAGE_TEXT.executeQuery();
+		while (resultSet.next()) {
+			components.add(Text.fromResultSet(config, resultSet));
+		}
 
-			GET_MESSAGE_IMAGE.setInt(1, thread.getId());
-			GET_MESSAGE_IMAGE.setInt(2, messageId);
-			resultSet = GET_MESSAGE_IMAGE.executeQuery();
-			while (resultSet.next()) {
-				components.add(Image.fromResultSet(config, resultSet));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_MESSAGE_IMAGE.setInt(1, thread.getId());
+		GET_MESSAGE_IMAGE.setInt(2, messageId);
+		resultSet = GET_MESSAGE_IMAGE.executeQuery();
+		while (resultSet.next()) {
+			components.add(Image.fromResultSet(config, resultSet));
 		}
 		return components;
 	}
@@ -476,16 +440,12 @@ public class DatabaseController {
 		return connection;
 	}
 
-	private Message getLatestMessage() {
+	private Message getLatestMessage() throws SQLException {
 		checkConnection();
-		try {
-			GET_LATEST_MESSAGE.setInt(1, thread.getId());
-			ResultSet resultSet = GET_LATEST_MESSAGE.executeQuery();
-			if (resultSet.next()) {
-				return Message.fromResultSet(config, this, resultSet);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		GET_LATEST_MESSAGE.setInt(1, thread.getId());
+		ResultSet resultSet = GET_LATEST_MESSAGE.executeQuery();
+		if (resultSet.next()) {
+			return Message.fromResultSet(config, this, resultSet);
 		}
 		return null;
 	}

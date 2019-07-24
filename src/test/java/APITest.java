@@ -3,14 +3,15 @@ import com.hollandjake.messenger_bot_api.message.Message;
 import com.hollandjake.messenger_bot_api.util.Config;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 class APITest extends API {
 
-	public APITest(Config config) {
+	public APITest(Config config) throws SQLException {
 		super(config);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws SQLException {
 		String configFile = args.length > 0 ? args[0] : null;
 		new APITest(new Config(configFile));
 	}
@@ -26,7 +27,7 @@ class APITest extends API {
 	}
 
 	@Override
-	public void loaded() {
+	public void loaded(Connection connection) {
 		System.out.println("Loaded");
 	}
 }

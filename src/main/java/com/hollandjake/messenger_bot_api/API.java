@@ -24,15 +24,14 @@ import java.time.Duration;
 public abstract class API extends Thread {
 	protected final Config config;
 	protected final LOG_LEVEL logLevel;
-	protected final MessageThread thread;
 	protected final Human me;
-	protected WebController webController;
-	protected DatabaseController db;
+	protected final WebController webController;
+	protected final DatabaseController db;
 	private boolean running;
 	private int refreshRate;
 	private Duration messageTimeout;
 
-	public API(Config config) {
+	public API(Config config) throws SQLException {
 		this.config = config;
 		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));
 		refreshRate = (int) config.get("refresh_rate");
@@ -41,7 +40,7 @@ public abstract class API extends Thread {
 		//Login to the thread
 		this.db = new DatabaseController(config, this);
 		this.webController = new WebController(config, this);
-		this.thread = webController.getThread();
+
 		this.me = webController.getMe();
 		//Load this system
 
@@ -55,21 +54,18 @@ public abstract class API extends Thread {
 
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
-		loaded();
-		try {
-			databaseReload(db.getConnection());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		loaded(db.getConnection());
 	}
 
 	public void errorHandler(Throwable e) {
 		e.printStackTrace();
-		System.exit(1);
+		quit();
 	}
 
 	public void quit() {
-		webController.quit(true);
+		if (webController != null) {
+			webController.quit(true);
+		}
 		System.exit(0);
 	}
 
@@ -86,7 +82,7 @@ public abstract class API extends Thread {
 	}
 
 	@ForOverride
-	public void loaded() {
+	public void loaded(Connection connection) throws SQLException {
 	}
 
 	public void sendMessage(Message message) {
@@ -94,7 +90,7 @@ public abstract class API extends Thread {
 	}
 
 	public void sendMessage(String message) {
-		webController.sendMessage(Message.fromString(thread, me, message));
+		webController.sendMessage(Message.fromString(db.getThread(), me, message));
 	}
 
 	public boolean debugging() {
@@ -126,7 +122,7 @@ public abstract class API extends Thread {
 	}
 
 	public MessageThread getThread() {
-		return thread;
+		return db.getThread();
 	}
 
 	@ForOverride
