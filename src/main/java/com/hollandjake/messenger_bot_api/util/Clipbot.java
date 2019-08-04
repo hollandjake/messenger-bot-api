@@ -24,8 +24,10 @@ public class Clipbot implements ClipboardOwner {
 		// 5 Retries before failing to set the clipboard back to default
 		for (int i = 0; i < 5; i++) {
 			try {
-				clipboard.setContents(buffer, null);
-				buffer = null;
+				if (buffer != null) {
+					clipboard.setContents(buffer, null);
+					buffer = null;
+				}
 				return;
 			} catch (IllegalStateException ignored) {
 			}
