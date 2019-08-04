@@ -28,7 +28,6 @@ class APITest extends API {
 
 	@Override
 	public void loaded(Connection connection) {
-		System.out.println(debugging());
 		System.out.println("Loaded");
 	}
 }

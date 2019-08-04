@@ -9,14 +9,12 @@ import com.hollandjake.messenger_bot_api.util.Config;
 import com.hollandjake.messenger_bot_api.util.DatabaseController;
 import com.hollandjake.messenger_bot_api.util.LOG_LEVEL;
 import com.hollandjake.messenger_bot_api.util.WebController;
-import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -33,7 +31,7 @@ public abstract class API extends Thread {
 
 	public API(Config config) throws SQLException {
 		this.config = config;
-		messageTimeout = Duration.ofMillis(Long.valueOf(config.getProperty("message_timeout")));
+		messageTimeout = Duration.ofMillis(Long.parseLong(config.getProperty("message_timeout")));
 		refreshRate = (int) config.get("refresh_rate");
 		this.logLevel = (LOG_LEVEL) config.get("log_level");
 
@@ -128,26 +126,13 @@ public abstract class API extends Thread {
 
 	@ForOverride
 	public String getVersion() {
-		MavenXpp3Reader reader = new MavenXpp3Reader();
-		Model model = null;
 		try {
-			try {
-				model = reader.read(new FileReader(new File("pom.xml")));
-			} catch (IOException e) {
-				model = reader.read(
-						new InputStreamReader(
-								getClass().getResourceAsStream(
-										"/META-INF/maven/de.scrum-master.stackoverflow/aspectj-introduce-method/pom.xml"
-								)
-						)
-				);
-			}
+			return new MavenXpp3Reader().read(
+					new FileReader(new File("pom.xml"))
+			).getVersion();
 		} catch (XmlPullParserException | IOException ignore) {
+			return "";
 		}
-		if (model != null) {
-			return model.getVersion();
-		}
-		return "";
 	}
 
 	public boolean isRunning() {

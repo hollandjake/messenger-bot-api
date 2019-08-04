@@ -21,8 +21,15 @@ public class Clipbot implements ClipboardOwner {
 	}
 
 	public void flush() {
-		clipboard.setContents(buffer, null);
-		buffer = null;
+		// 5 Retries before failing to set the clipboard back to default
+		for (int i = 0; i < 5; i++) {
+			try {
+				clipboard.setContents(buffer, null);
+				buffer = null;
+				return;
+			} catch (IllegalStateException ignored) {
+			}
+		}
 	}
 
 	public void paste(Transferable transferable, WebElement inputBox) {
@@ -32,5 +39,6 @@ public class Clipbot implements ClipboardOwner {
 
 	@Override
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
+
 	}
 }
