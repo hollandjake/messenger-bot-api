@@ -101,8 +101,9 @@ BEGIN
     WHERE human_id = humanId;
 END;
 
-DROP PROCEDURE IF EXISTS GetHumanWithNameLike;
-CREATE PROCEDURE GetHumanWithNameLike(IN hName TEXT)
+DROP FUNCTION IF EXISTS GetHumanIdWithNameLike;
+CREATE FUNCTION GetHumanIdWithNameLike(hName TEXT)
+    RETURNS INT
 BEGIN
     -- first check if the string is an exact match;
     DECLARE humanId INT DEFAULT (SELECT human_id FROM human WHERE name COLLATE UTF8MB4_GENERAL_CI = hName LIMIT 1);
@@ -114,16 +115,17 @@ BEGIN
         SET humanId =
                 (SELECT human_id FROM human WHERE name COLLATE UTF8MB4_GENERAL_CI LIKE CONCAT('%', hName, '%') LIMIT 1);
     END IF;
+    RETURN humanId;
+END;
 
-    IF (NOT ISNULL(humanId)) THEN
-        SELECT human_id,
-               name
-        FROM human
-        WHERE human_id = humanId
-        LIMIT 1;
-    ELSE
-        SELECT NULL;
-    END IF;
+DROP PROCEDURE IF EXISTS GetHumanWithNameLike;
+CREATE PROCEDURE GetHumanWithNameLike(IN hName TEXT)
+BEGIN
+    SELECT human_id,
+           name
+    FROM human
+    WHERE human_id = GetHumanIdWithNameLike(hName)
+    LIMIT 1;
 END;
 
 DROP FUNCTION IF EXISTS SaveImage;
