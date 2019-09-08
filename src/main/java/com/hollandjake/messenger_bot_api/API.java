@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.ForOverride;
 import com.hollandjake.messenger_bot_api.message.Human;
 import com.hollandjake.messenger_bot_api.message.Message;
 import com.hollandjake.messenger_bot_api.message.MessageThread;
+import com.hollandjake.messenger_bot_api.threads.PageReload;
 import com.hollandjake.messenger_bot_api.threads.WaitForMessage;
 import com.hollandjake.messenger_bot_api.util.Config;
 import com.hollandjake.messenger_bot_api.util.DatabaseController;
@@ -52,6 +53,7 @@ public abstract class API extends Thread {
 
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
+		new PageReload(this, webController).start();
 		loaded(db.getConnection());
 	}
 

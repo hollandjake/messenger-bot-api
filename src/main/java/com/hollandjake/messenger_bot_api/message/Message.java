@@ -6,7 +6,6 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -55,13 +54,13 @@ public class Message extends DatabaseObject {
 				components);
 	}
 
-	public static Message fromElement(DatabaseController db, WebElement messageElement) throws IOException, SQLException {
+	public static Message fromElement(DatabaseController db, WebElement messageElement) {
 		Config config = db.getConfig();
 		MessageDate date = MessageDate.extractFrom(config, messageElement);
 		if (date != null) {
 			List<MessageComponent> components = MessageComponent.extractComponents(config, messageElement);
 			if (components.size() > 0) {
-				return db.saveMessage(new Message(null, db.getThread(), Human.extractFrom(config, messageElement), date, components));
+				return new Message(null, db.getThread(), Human.extractFrom(config, messageElement), date, components);
 			}
 		}
 		return null;
@@ -72,12 +71,15 @@ public class Message extends DatabaseObject {
 	}
 
 	public void send(WebElement inputBox, WebDriverWait wait) {
-		CLIPBOT.cache();
-		for (MessageComponent component : components) {
-			component.send(inputBox, wait);
+		try {
+			CLIPBOT.cache();
+			for (MessageComponent component : components) {
+				component.send(inputBox, wait);
+			}
+			inputBox.sendKeys(" " + Keys.ENTER);
+		} finally {
+			CLIPBOT.flush();
 		}
-		inputBox.sendKeys(" " + Keys.ENTER);
-		CLIPBOT.flush();
 	}
 
 	public List<MessageComponent> getComponents() {

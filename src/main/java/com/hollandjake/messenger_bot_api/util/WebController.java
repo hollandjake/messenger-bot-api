@@ -3,6 +3,7 @@ package com.hollandjake.messenger_bot_api.util;
 import com.hollandjake.messenger_bot_api.API;
 import com.hollandjake.messenger_bot_api.message.Human;
 import com.hollandjake.messenger_bot_api.message.Message;
+import com.hollandjake.messenger_bot_api.util.expected_conditions.ExtendedConditions;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -30,6 +31,8 @@ public class WebController {
 	private final Config config;
 	private final DatabaseController db;
 	private int numMessages;
+	private long lastMessage;
+
 	public WebController(Config config, API api) {
 		config.checkForProperties("email", "password", "thread_name");
 
@@ -95,14 +98,18 @@ public class WebController {
 	public List<Message> waitForMessage() {
 		while (api.isRunning()) {
 			try {
-				messageWait.until(ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(OTHERS_MESSAGES), numMessages));
+				messageWait.until(ExpectedConditions.and(
+						ExpectedConditions.numberOfElementsToBeMoreThan(By.xpath(OTHERS_MESSAGES), numMessages),
+						ExtendedConditions.pageLoaded()
+				));
+
 				int newCount = getNumberOfMessages();
 				List<Message> messages = new ArrayList<>();
 				webDriver.findElement(By.xpath(INPUT_BOX)).click();
 				for (int i = newCount - numMessages; i > 0; i--) {
 					WebElement messageElement = webDriver.findElement(By.xpath(LAST_MINUS_N(OTHERS_MESSAGES, i - 1)));
 					try {
-						Message message = Message.fromElement(db, messageElement);
+						Message message = db.saveMessage(Message.fromElement(db, messageElement));
 						if (message != null) {
 							messages.add(message);
 						}
@@ -111,7 +118,9 @@ public class WebController {
 					}
 				}
 				numMessages = newCount;
-				return messages;
+				if (!messages.isEmpty()) {
+					return messages;
+				}
 			} catch (TimeoutException e) {
 				if (api.debugging()) {
 					System.out.println("No messaged received in the last " + api.getMessageTimeout().toString()
@@ -120,7 +129,7 @@ public class WebController {
 							.toLowerCase());
 				}
 			} catch (WebDriverException e) {
-				if (!(e instanceof NoSuchSessionException)) {
+				if (!(e instanceof NoSuchSessionException) && !(e instanceof UnhandledAlertException)) {
 					e.printStackTrace();
 				}
 			}
@@ -150,6 +159,10 @@ public class WebController {
 
 		//Send message
 		message.send(inputBox, wait);
+	}
+
+	public void reload() {
+		webDriver.navigate().refresh();
 	}
 
 	public Human getMe() throws SQLException {
