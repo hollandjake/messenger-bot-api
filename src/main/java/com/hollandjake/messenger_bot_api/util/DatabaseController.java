@@ -180,7 +180,9 @@ public class DatabaseController {
 			if (api != null && api.debugging()) {
 				System.out.println("Connecting to Database");
 			}
-			shutdownThread.start();
+			if (!shutdownThread.isAlive()) {
+				shutdownThread.start();
+			}
 			connection = DriverManager.getConnection(
 					config.getProperty("db_url") + "?" +
 							"sessionVariables=wait_timeout=" + (connectionTimeout.getSeconds()) + "," +
