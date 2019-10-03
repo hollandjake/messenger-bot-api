@@ -34,13 +34,13 @@ public abstract class API extends Thread {
 		this.config = config;
 		messageTimeout = Duration.ofMillis(Long.parseLong(config.getProperty("message_timeout")));
 		refreshRate = (int) config.get("refresh_rate");
-		this.logLevel = (LOG_LEVEL) config.get("log_level");
+		logLevel = (LOG_LEVEL) config.get("log_level");
 
 		//Login to the thread
-		this.db = new DatabaseController(config, this);
-		this.webController = new WebController(config, this);
+		db = new DatabaseController(config, this);
+		webController = new WebController(config, this);
 
-		this.me = webController.getMe();
+		me = webController.getMe();
 		//Load this system
 
 		if (LOG_LEVEL.DEBUG.lessThanEqTo(logLevel)) {
@@ -49,7 +49,7 @@ public abstract class API extends Thread {
 		running = true;
 
 		//Create threads
-		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> errorHandler(e));
+		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> errorHandler(this, e));
 
 		//waiting for messages
 		new WaitForMessage(this, webController).start();
@@ -57,9 +57,17 @@ public abstract class API extends Thread {
 		loaded(db.getConnection());
 	}
 
-	public void errorHandler(Throwable e) {
+	public void errorHandler(Object sender, Throwable e) {
 		e.printStackTrace();
-		quit();
+		if (sender instanceof WaitForMessage) {
+			System.out.println("Restarting WaitForMessage Thread");
+			new WaitForMessage(this, webController).start();
+		} else if (sender instanceof PageReload) {
+			System.out.println("Restarting PageReload Thread");
+			new PageReload(this, webController).start();
+		} else {
+			quit();
+		}
 	}
 
 	public void quit() {

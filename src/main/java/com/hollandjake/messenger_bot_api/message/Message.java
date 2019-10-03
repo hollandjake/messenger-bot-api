@@ -82,6 +82,16 @@ public class Message extends DatabaseObject {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "Message{" +
+				"thread=" + thread +
+				", sender=" + sender +
+				", date=" + date +
+				", components=" + components +
+				'}';
+	}
+
 	public List<MessageComponent> getComponents() {
 		return components;
 	}

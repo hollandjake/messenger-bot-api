@@ -162,7 +162,7 @@ public class DatabaseController {
 		this.api = api;
 		this.config = config;
 		if (config.hasProperty("db_connection_timeout")) {
-			connectionTimeout = Duration.ofSeconds(Long.valueOf(config.getProperty("db_connection_timeout")));
+			connectionTimeout = Duration.ofSeconds(Long.parseLong(config.getProperty("db_connection_timeout")));
 		} else {
 			connectionTimeout = (api != null ? api.getMessageTimeout() : Duration.ofMinutes(1));
 		}
@@ -180,7 +180,7 @@ public class DatabaseController {
 			if (api != null && api.debugging()) {
 				System.out.println("Connecting to Database");
 			}
-			shutdownThread.run();
+			shutdownThread.start();
 			connection = DriverManager.getConnection(
 					config.getProperty("db_url") + "?" +
 							"sessionVariables=wait_timeout=" + (connectionTimeout.getSeconds()) + "," +
@@ -344,34 +344,41 @@ public class DatabaseController {
 
 	private Message saveMessage(Message message, boolean noReturn) throws SQLException, IOException {
 		checkConnection();
-		SAVE_MESSAGE.setInt(1, message.getThread().getId());
-		SAVE_MESSAGE.setString(2, message.getSender().getName());
-		SAVE_MESSAGE.setTimestamp(3, Timestamp.valueOf(message.getDate().getDate()));
-		ResultSet resultSet = SAVE_MESSAGE.executeQuery();
-		if (resultSet.next()) {
-			int textCount = 0;
-			int imageCount = 0;
-			int messageId = resultSet.getInt("message_id");
-			for (MessageComponent component : message.getComponents()) {
-				if (component instanceof Text) {
-					saveText(messageId, (Text) component);
-					textCount++;
-				} else if (component instanceof Image) {
-					saveImage(messageId, (Image) component);
-					imageCount++;
+		try {
+			SAVE_MESSAGE.setInt(1, message.getThread().getId());
+			SAVE_MESSAGE.setString(2, message.getSender().getName());
+			SAVE_MESSAGE.setTimestamp(3, Timestamp.valueOf(message.getDate().getDate()));
+
+			ResultSet resultSet = SAVE_MESSAGE.executeQuery();
+			if (resultSet.next()) {
+				int textCount = 0;
+				int imageCount = 0;
+				int messageId = resultSet.getInt("message_id");
+				for (MessageComponent component : message.getComponents()) {
+					if (component instanceof Text) {
+						saveText(messageId, (Text) component);
+						textCount++;
+					} else if (component instanceof Image) {
+						saveImage(messageId, (Image) component);
+						imageCount++;
+					}
+				}
+				if (textCount > 0) {
+					SAVE_MESSAGE_TEXT.executeBatch();
+					SAVE_MESSAGE_TEXT.clearBatch();
+				}
+				if (imageCount > 0) {
+					SAVE_MESSAGE_IMAGE.executeBatch();
+					SAVE_MESSAGE_IMAGE.clearBatch();
+				}
+
+				if (!noReturn) {
+					return Message.fromResultSet(config, this, resultSet);
 				}
 			}
-			if (textCount > 0) {
-				SAVE_MESSAGE_TEXT.executeBatch();
-				SAVE_MESSAGE_TEXT.clearBatch();
-			}
-			if (imageCount > 0) {
-				SAVE_MESSAGE_IMAGE.executeBatch();
-				SAVE_MESSAGE_IMAGE.clearBatch();
-			}
-
-			if (!noReturn) {
-				return Message.fromResultSet(config, this, resultSet);
+		} catch (NullPointerException e) {
+			if (api.debugging()) {
+				System.out.println(message);
 			}
 		}
 		return null;

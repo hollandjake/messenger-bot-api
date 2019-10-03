@@ -17,7 +17,7 @@ public class PageReload extends Thread {
 	public PageReload(API api, WebController webController) {
 		this.api = api;
 		this.webController = webController;
-		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> api.errorHandler(e));
+		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> api.errorHandler(this, e));
 
 		Config config = api.getConfig();
 		if (config.hasProperty("reload_time")) {

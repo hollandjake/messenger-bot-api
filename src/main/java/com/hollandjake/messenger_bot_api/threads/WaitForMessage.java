@@ -15,7 +15,7 @@ public class WaitForMessage extends Thread {
 	public WaitForMessage(API api, WebController webController) {
 		this.api = api;
 		this.webController = webController;
-		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> api.errorHandler(e));
+		Thread.setDefaultUncaughtExceptionHandler((thread, e) -> api.errorHandler(this, e));
 		echo = (Boolean) api.getConfig().get("echo");
 	}
 
