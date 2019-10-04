@@ -23,7 +23,6 @@ public class DatabaseController {
 	private Duration connectionTimeout;
 	private LocalDateTime lastCheck;
 	private Connection connection;
-	private final Thread shutdownThread = new Thread(this::closeConnection);
 	/**
 	 * Gets a {@link MessageThread} from the database
 	 * If one doesnt exist it creates it
@@ -167,6 +166,10 @@ public class DatabaseController {
 			connectionTimeout = (api != null ? api.getMessageTimeout() : Duration.ofMinutes(1));
 		}
 		openConnection();
+		try {
+			Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnection));
+		} catch (IllegalArgumentException ignore) {
+		}
 		this.thread = getThread(config.getProperty("thread_name"));
 	}
 
@@ -180,9 +183,7 @@ public class DatabaseController {
 			if (api != null && api.debugging()) {
 				System.out.println("Connecting to Database");
 			}
-			if (!shutdownThread.isAlive()) {
-				shutdownThread.start();
-			}
+
 			connection = DriverManager.getConnection(
 					config.getProperty("db_url") + "?" +
 							"sessionVariables=wait_timeout=" + (connectionTimeout.getSeconds()) + "," +
@@ -197,11 +198,6 @@ public class DatabaseController {
 			lastCheck = LocalDateTime.now();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				Runtime.getRuntime().addShutdownHook(shutdownThread);
-			} catch (IllegalArgumentException ignore) {
-			}
 		}
 	}
 
@@ -213,12 +209,10 @@ public class DatabaseController {
 			try {
 				if (!connection.isClosed()) {
 					connection.close();
-					Runtime.getRuntime().removeShutdownHook(shutdownThread);
 					System.out.println("Connection closed");
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
-			} catch (IllegalStateException ignore) {
 			}
 		}
 	}
