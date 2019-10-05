@@ -17,6 +17,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,7 +124,7 @@ public class WebController {
 				}
 			} catch (TimeoutException e) {
 				if (api.debugging()) {
-					System.out.println("No messaged received in the last " + api.getMessageTimeout().toString()
+					System.out.println("[" + LocalDateTime.now().toString() + "] No messaged received in the last " + api.getMessageTimeout().toString()
 							.substring(2)
 							.replaceAll("(\\d[HMS])(?!$)", "$1 ")
 							.toLowerCase());
